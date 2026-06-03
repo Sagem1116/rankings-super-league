@@ -7,10 +7,13 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
+import { Sidebar } from "@/components/sidebar";
+import { Toaster } from "@/components/ui/sonner";
+import { ThemeControls } from "@/components/theme-controls";
+import { useState } from "react";
+import { Menu } from "lucide-react";
 
 function NotFoundComponent() {
   return (
@@ -37,9 +40,6 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
-  useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -77,18 +77,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Ranking SuperLeague" },
-      { name: "description", content: "Rankings da Super League" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Ranking SuperLeague" },
-      { property: "og:description", content: "Rankings da Super League" },
+      { title: "FMDataLab" },
+      { name: "description", content: "FMDataLab brings polished Football Manager scouting and role-score analytics to your dataset." },
+      { name: "author", content: "FMDataLab" },
+      { property: "og:title", content: "FMDataLab" },
+      { property: "og:description", content: "FMDataLab brings polished Football Manager scouting and role-score analytics to your dataset." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "Ranking SuperLeague" },
-      { name: "twitter:description", content: "Rankings da Super League" },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/ec86f5d4-9263-40ae-8163-c9da5d9f5e51/id-preview-9571b871--66edf096-41b5-430c-8f4c-7c938ea09f3d.lovable.app-1780523052102.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/ec86f5d4-9263-40ae-8163-c9da5d9f5e51/id-preview-9571b871--66edf096-41b5-430c-8f4c-7c938ea09f3d.lovable.app-1780523052102.png" },
+      { name: "twitter:site", content: "@FMDataLab" },
+      { name: "twitter:title", content: "FMDataLab" },
+      { name: "twitter:description", content: "FMDataLab brings polished Football Manager scouting and role-score analytics to your dataset." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/94d55538-b6e2-4c98-aae1-2acb0ff2b3c6/id-preview-d127dbe5--f5434d03-8c47-44c8-932d-25c91440ff31.lovable.app-1778423013472.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/94d55538-b6e2-4c98-aae1-2acb0ff2b3c6/id-preview-d127dbe5--f5434d03-8c47-44c8-932d-25c91440ff31.lovable.app-1778423013472.png" },
     ],
     links: [
       {
@@ -103,7 +103,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
-function RootShell({ children }: { children: ReactNode }) {
+function RootShell({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>
@@ -122,8 +122,67 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <AppShell />
     </QueryClientProvider>
+  );
+}
+
+const SITE_NAV = [
+  { label: "Dashboard", to: "/dashboard/Dashboard_Clubes" },
+  { label: "Moneyball", to: "/scouting" },
+  { label: "Role Scores", to: "/dashboard/Dashboard_Jogadores" },
+  { label: "Best XI", to: "/dashboard/Dashboard_Clubes" },
+  { label: "Fantasy Draft", to: "/scouting" },
+  { label: "Staff Scores", to: "/dashboard/Dashboard_Treinadores" },
+  { label: "Tutorials", to: "/#tutorials" },
+];
+
+function AppShell() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  return (
+    <div className="flex min-h-screen bg-background text-foreground">
+      <div className="hidden md:block"><Sidebar /></div>
+      {mobileOpen && (
+        <div className="fixed inset-0 z-40 md:hidden" onClick={() => setMobileOpen(false)}>
+          <div className="absolute inset-0 bg-black/60" />
+          <div className="absolute inset-y-0 left-0 z-50" onClick={(e) => e.stopPropagation()}>
+            <Sidebar onNavigate={() => setMobileOpen(false)} />
+          </div>
+        </div>
+      )}
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="sticky top-0 z-40 border-b border-violet-500/20 bg-[#09061f]/95 px-5 py-3 backdrop-blur-2xl supports-[backdrop-filter]:bg-[#09061f]/95 md:px-8 shadow-[0_0_40px_-20px_rgba(167,139,250,0.25)]">
+          <div className="mx-auto flex w-full max-w-[1280px] flex-wrap items-center gap-3">
+            <Link to="/" className="inline-flex items-center gap-3 rounded-full border border-violet-500/20 bg-[#110a2e]/95 px-4 py-2 text-white shadow-[0_0_30px_rgba(167,139,250,0.18)] transition hover:bg-violet-500/15">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-violet-600 via-indigo-700 to-slate-900 text-white shadow-md shadow-purple-500/20">F</span>
+              <span className="font-display text-base font-semibold tracking-tight text-slate-100">FMDataLab</span>
+            </Link>
+            <nav className="hidden flex-1 items-center justify-center gap-2 md:flex">
+              {SITE_NAV.map((item) => (
+                <Link
+                  key={item.label}
+                  to={item.to}
+                  className="rounded-full px-3 py-2 text-sm font-medium text-slate-300 transition hover:bg-violet-500/10 hover:text-white"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+            <div className="ml-auto flex items-center gap-3">
+              <div className="hidden items-center gap-2 rounded-full border border-violet-500/20 bg-violet-500/10 px-4 py-2 text-sm text-violet-100 md:flex shadow-[0_0_26px_-12px_rgba(167,139,250,0.2)]">
+                <span className="h-2.5 w-2.5 rounded-full bg-violet-300" />
+                Live scouting
+              </div>
+              <ThemeControls />
+              <button onClick={() => setMobileOpen(true)} className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-[#0d1222] text-violet-200 transition hover:bg-white/10 md:hidden">
+                <Menu className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+        </header>
+        <main className="flex-1 overflow-x-hidden p-5 text-[15px] md:p-8"><Outlet /></main>
+      </div>
+      <Toaster richColors position="top-right" />
+    </div>
   );
 }

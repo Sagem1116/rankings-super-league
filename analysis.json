@@ -1,0 +1,349 @@
+{
+  "functions": [
+    {
+      "name": "parseWorkbook",
+      "file": "src/lib/parse-excel.ts",
+      "exported": true,
+      "signature": "async function parseWorkbook(file: File): Promise<RawSheets>",
+      "description": "Reads an uploaded .xlsx File and returns normalized sheet arrays (Ranking, Equipas_Pais, Treinadores, Jogadores, Pesos_Fixos).",
+      "inputs": { "file": "File (browser File API)" },
+      "outputs": "RawSheets (object of arrays)",
+      "sideEffects": "none (in-memory)",
+      "calledBy": ["src/components/upload-panel.tsx"],
+      "complexity": "O(N) per sheet",
+      "tests": ["file with expected sheets", "missing sheets => returns empty arrays"],
+      "refactorSuggestions": ["validate headers and provide warnings for unexpected columns"]
+    },
+    {
+      "name": "exportAllToExcel",
+      "file": "src/lib/export-excel.ts",
+      "exported": true,
+      "signature": "async function exportAllToExcel(resultados: Record<string, RankingTable>): Promise<void>",
+      "description": "Generates an Excel workbook with an index and one worksheet per table, and triggers a browser download.",
+      "inputs": { "resultados": "map of ranking tables" },
+      "outputs": "void (triggers file download)",
+      "sideEffects": "Creates Blob, triggers DOM anchor click",
+      "calledBy": ["src/components/upload-panel.tsx"],
+      "complexity": "O(totalRows * columns) for workbook generation",
+      "tests": ["small resultados => generated workbook has sheets and hyperlinks"],
+      "refactorSuggestions": ["stream large sheets to avoid memory spikes"]
+    },
+    {
+      "name": "normalizeSeason",
+      "file": "src/lib/calc/engine.ts",
+      "exported": true,
+      "signature": "function normalizeSeason(raw: RawSheets, epoca: string): NormSeason",
+      "description": "Normalizes raw workbook sheets into a typed season structure used by the computation engine.",
+      "inputs": { "raw": "RawSheets", "epoca": "string" },
+      "outputs": "NormSeason",
+      "sideEffects": "none",
+      "calledBy": ["src/components/upload-panel.tsx"],
+      "complexity": "O(rows)",
+      "tests": ["various sheet shapes, numeric parsing (commas/dots), VP parsing suffixes"],
+      "refactorSuggestions": ["centralize number parsing helpers; expose parse errors for logs"]
+    },
+    {
+      "name": "computeAll",
+      "file": "src/lib/calc/engine.ts",
+      "exported": true,
+      "signature": "function computeAll(seasons: NormSeason[], modo: ModoAtivo): Record<string, RankingTable>",
+      "description": "Core computation that builds all ranking tables from normalized seasons according to active modes.",
+      "inputs": { "seasons": "NormSeason[]", "modo": "{rankings:boolean,treinadores:boolean,jogadores:boolean}" },
+      "outputs": "Record<string, RankingTable>",
+      "sideEffects": "none (pure transform)",
+      "calledBy": ["src/components/upload-panel.tsx"],
+      "complexity": "O(S * R) where S=seasons, R=rows per season (multiple passes for different aggregations)",
+      "tests": ["multi-season dataset => consistent ranking keys and epochKeys", "weights/fixed vs dynamic branches"],
+      "refactorSuggestions": ["split into smaller modules per domain (club, pais, treinador, jogador) for testability"]
+    },
+    {
+      "name": "computeEpochPositions",
+      "file": "src/lib/export-excel.ts",
+      "exported": false,
+      "signature": "function computeEpochPositions(t: RankingTable): Map<any, Record<string, number>>",
+      "description": "Computes per-row epoch position numbers used when exporting epoch positions to Excel.",
+      "inputs": { "t": "RankingTable" },
+      "outputs": "Map(row -> { epochKey: position })",
+      "sideEffects": "none",
+      "calledBy": ["src/lib/export-excel.ts"],
+      "complexity": "O(rows * epochs * log(rows))",
+      "tests": ["table with epochKeys returns expected __pos_ fields"]
+    },
+    {
+      "name": "DataTable",
+      "file": "src/components/data-table.tsx",
+      "exported": true,
+      "signature": "export function DataTable({ table, limit }: { table: RankingTable; limit?: number })",
+      "description": "Generic table renderer with sorting, filtering, pagination, column visibility and epoch rank badges.",
+      "inputs": { "table": "RankingTable", "limit": "optional number" },
+      "outputs": "React component",
+      "sideEffects": "localStorage usage for column state",
+      "calledBy": ["src/routes/tabela.$key.tsx", "src/routes/dashboard.$key.tsx"],
+      "complexity": "renders O(pageSize) rows; filtering/sorting O(rows log rows)",
+      "tests": ["render page with table, filter by column, persist column visibility"],
+      "refactorSuggestions": ["memoize heavy sorts; extract filtering logic for unit tests"]
+    },
+    {
+      "name": "UploadPanel",
+      "file": "src/components/upload-panel.tsx",
+      "exported": true,
+      "signature": "export function UploadPanel()",
+      "description": "UI to upload Excel files, pick seasons, process (normalize + computeAll) and export results.",
+      "inputs": "none (uses internal state and UI)",
+      "outputs": "React component",
+      "sideEffects": "invokes parseWorkbook, computeAll, exportAllToExcel; updates app store (useFMStore)",
+      "calledBy": ["src/routes/index.tsx"],
+      "complexity": "UI interactions; processing is delegated to computeAll",
+      "tests": ["simulate file input; mock parseWorkbook and computeAll"],
+      "refactorSuggestions": ["surface parsing errors to the UI with per-file diagnostics"]
+    },
+    {
+      "name": "RankingEvolutionChart",
+      "file": "src/components/ranking-evolution-chart.tsx",
+      "exported": true,
+      "signature": "export function RankingEvolutionChart({ data, title, showLegend, seriesKey })",
+      "description": "Line chart component to visualize position evolution across epochs (uses recharts).",
+      "inputs": { "data": "array of {epoca,pos,divisao,...}", "seriesKey": "optional to split series" },
+      "outputs": "React component",
+      "sideEffects": "none",
+      "calledBy": ["src/routes/perfil.clube.$nome.tsx"],
+      "complexity": "O(data.length)",
+      "tests": ["renders empty state, sorts epochs chronologically"]
+    },
+    {
+      "name": "WorldMap",
+      "file": "src/components/world-map.tsx",
+      "exported": true,
+      "signature": "export function WorldMap()",
+      "description": "Map visualization (react-leaflet) that shows top clubs/players by country using resultados store.",
+      "inputs": "none",
+      "outputs": "React component",
+      "sideEffects": "uses resultados from store; sets state; depends on hardcoded country coords",
+      "calledBy": ["src/routes/dashboard.$key.tsx (Mapa_Mundo)"],
+      "complexity": "O(#countries + top N rows)"
+    },
+    {
+      "name": "PageHeader",
+      "file": "src/components/page-header.tsx",
+      "exported": true,
+      "signature": "export function PageHeader({ title, description }: { title: string; description?: string })",
+      "description": "Common page header with back link and title.",
+      "inputs": { "title": "string", "description": "string?" },
+      "outputs": "React component",
+      "sideEffects": "none",
+      "calledBy": ["many pages: index, tabela, perfil pages"],
+      "complexity": "O(1)"
+    },
+    {
+      "name": "buildClubProfile",
+      "file": "src/lib/profiles.ts",
+      "exported": true,
+      "signature": "function buildClubProfile(seasons: NormSeason[], nome: string): ClubProfile | null",
+      "description": "Aggregates seasons to build a club profile: historical positions, trophies, promotions and current squad summary.",
+      "inputs": { "seasons": "NormSeason[]", "nome": "string" },
+      "outputs": "ClubProfile | null",
+      "sideEffects": "none",
+      "calledBy": ["src/routes/perfil.clube.$nome.tsx"],
+      "complexity": "O(S * R) over seasons and their rankings",
+      "tests": ["club with no data => null; club with multiple seasons => correct markers"]
+    },
+    {
+      "name": "buildPlayerProfile",
+      "file": "src/lib/profiles.ts",
+      "exported": true,
+      "signature": "function buildPlayerProfile(seasons: NormSeason[], nome: string): PlayerProfile | null",
+      "description": "Aggregates player stats across seasons (gols, assistências, per-epoch breakdown).",
+      "inputs": { "seasons": "NormSeason[]", "nome": "string" },
+      "outputs": "PlayerProfile | null",
+      "sideEffects": "none",
+      "calledBy": ["src/routes/perfil.jogador.$nome.tsx"],
+      "complexity": "O(S * J) where J = players per season",
+      "tests": ["player with multiple seasons => totals and per-epoch list"]
+    },
+    {
+      "name": "buildCoachProfile",
+      "file": "src/lib/profiles.ts",
+      "exported": true,
+      "signature": "function buildCoachProfile(seasons: NormSeason[], nome: string): CoachProfile | null",
+      "description": "Aggregates coach history and achievements across seasons.",
+      "inputs": { "seasons": "NormSeason[]", "nome": "string" },
+      "outputs": "CoachProfile | null",
+      "sideEffects": "none",
+      "calledBy": ["src/routes/perfil.treinador.$nome.tsx (expected)"],
+      "complexity": "O(S * R)",
+      "tests": ["coach with no seasons => null; coach with multiple promotions/titles aggregated"]
+    }
+  ],
+  "pages": [
+    {
+      "routePath": "/",
+      "file": "src/routes/index.tsx",
+      "pageType": "client-rendered",
+      "purpose": "Index page: shows UploadPanel and links to available pages defined in page-registry.",
+      "dataSources": ["useFMStore (seasons, resultados, modoAtivo)", "PAGES from src/lib/page-registry.ts"],
+      "props/state": ["hasData (derived)", "modoAtivo from store"],
+      "mainComponents": ["src/components/upload-panel.tsx", "src/components/page-header.tsx (via linked pages)"],
+      "rankingComponents": [],
+      "userFlows": ["Upload Excel → Process → enable pages", "Navigate to a table/dashboard page"],
+      "seo": "uses root head metadata via root route"
+    },
+    {
+      "routePath": "/tabela/$key",
+      "file": "src/routes/tabela.$key.tsx",
+      "pageType": "client-rendered",
+      "purpose": "Generic table page that renders a ranking table by key using DataTable.",
+      "dataSources": ["useFMStore.resultados", "PAGE_BY_KEY"],
+      "props/state": ["Route params key", "modoAtivo gating"],
+      "mainComponents": ["src/components/data-table.tsx", "src/components/page-header.tsx"],
+      "rankingComponents": ["src/components/data-table.tsx"],
+      "userFlows": ["Open table by key, filter/sort/paginate rows"],
+      "seo": null
+    },
+    {
+      "routePath": "/dashboard/$key",
+      "file": "src/routes/dashboard.$key.tsx",
+      "pageType": "client-rendered",
+      "purpose": "Dashboard view that composes multiple small top-N tables or special visualizations (e.g., WorldMap).",
+      "dataSources": ["useFMStore.resultados", "PAGE_BY_KEY"],
+      "props/state": ["Route params key"],
+      "mainComponents": ["src/components/data-table.tsx", "src/components/world-map.tsx"],
+      "rankingComponents": ["DataTable (limit=10)", "WorldMap for Mapa_Mundo"],
+      "userFlows": ["View top 10 slices for a set of keys defined in SETS"],
+      "seo": null
+    },
+    {
+      "routePath": "/scouting",
+      "file": "src/routes/scouting.tsx",
+      "pageType": "client-rendered",
+      "purpose": "Scouting/insight tool: choose a ranking table and inspect an entity's evolution, rating and compare multiple entities.",
+      "dataSources": ["useFMStore.resultados", "PAGES"],
+      "props/state": ["tableKey, search, compareList"],
+      "mainComponents": ["recharts graphs inline", "PageHeader"],
+      "rankingComponents": ["computes profile metric from table rows (positions, vals)"],
+      "userFlows": ["Select ranking → search entity → view evolution & positions → compare up to 5 entities"]
+    },
+    {
+      "routePath": "/perfil/jogador/$nome",
+      "file": "src/routes/perfil.jogador.$nome.tsx",
+      "pageType": "client-rendered",
+      "purpose": "Player profile page: totals, per-epoch history and links to clubs.",
+      "dataSources": ["useFMStore.seasons", "buildPlayerProfile"],
+      "props/state": ["Route param nome"],
+      "mainComponents": ["src/components/page-header.tsx"],
+      "rankingComponents": ["history table (per-epoch columns)"],
+      "userFlows": ["Open player profile → view per-epoch stats → navigate to club"]
+    },
+    {
+      "routePath": "/perfil/clube/$nome",
+      "file": "src/routes/perfil.clube.$nome.tsx",
+      "pageType": "client-rendered",
+      "purpose": "Club profile: trophies, promotions, coach history, ranking evolution and squad summary.",
+      "dataSources": ["useFMStore.seasons, resultados", "buildClubProfile", "Coef_Clube_Fixos table"],
+      "props/state": ["Route param nome"],
+      "mainComponents": ["src/components/ranking-evolution-chart.tsx", "src/components/value-evolution-chart.tsx"],
+      "rankingComponents": ["Coef evolution, history table"],
+      "userFlows": ["Open club → view coach, squad, evolution charts"]
+    },
+    {
+      "routePath": "/perfil/treinador/$nome",
+      "file": "src/routes/perfil.treinador.$nome.tsx",
+      "pageType": "client-rendered",
+      "purpose": "Coach profile (aggregates passagens and markers) — uses buildCoachProfile.",
+      "dataSources": ["useFMStore.seasons", "buildCoachProfile"],
+      "mainComponents": ["PageHeader, tables/charts (expected)"],
+      "rankingComponents": [],
+      "userFlows": ["Open coach profile → view passagens and titles"]
+    },
+    {
+      "routePath": "/perfil/pais/$nome",
+      "file": "src/routes/perfil.pais.$nome.tsx",
+      "pageType": "client-rendered",
+      "purpose": "Country profile — aggregates clubs and positions by country via buildCountryProfile.",
+      "dataSources": ["useFMStore.seasons", "buildCountryProfile"],
+      "mainComponents": ["PageHeader, tables"],
+      "rankingComponents": [],
+      "userFlows": ["Open country → view top clubs and historical positions"]
+    }
+  ],
+  "rankings": [
+    {
+      "name": "Pontos_Totais",
+      "locatedIn": "src/lib/calc/engine.ts",
+      "dataSource": "seasons[].rankings",
+      "computedColumns": ["per-epoch Pts columns", "Total", "Media"],
+      "sortCriteria": "Total desc",
+      "filters": "client-side via DataTable filters",
+      "timeWindow": "aggregates across all provided seasons",
+      "calculationSteps": ["group Pts by team across seasons", "sum per team", "compute mean"],
+      "performanceNotes": "linear in total ranking rows per season; many derived tables reuse grouped maps",
+      "visualization": "DataTable, Dashboard top-N",
+      "howToReproduce": "call computeAll(seasons, modo).Pontos_Totais"
+    },
+    {
+      "name": "Coef_Clube_Fixos (and Coef_Clube / Coef_Clube_Dinamicos)",
+      "locatedIn": "src/lib/calc/engine.ts",
+      "dataSource": "per-season Pts × weight + bonus; last 5 epochs weighted by COEF_WEIGHTS",
+      "computedColumns": ["per-epoch weighted values", "Coef (weighted sum)", "__tip_* tooltips", "__pos_* epoch ranks"],
+      "sortCriteria": "Coef desc",
+      "filters": "DataTable client filters",
+      "timeWindow": "last 5 epochs",
+      "calculationSteps": [
+        "for each team and epoch compute v = Pts * weight(div) + bonus(inf)",
+        "for last 5 epochs multiply by temporal weights [1.0,0.8,0.6,0.4,0.2] and sum"
+      ],
+      "performanceNotes": "maps per team then iterate last5 — acceptable for typical football datasets",
+      "visualization": "ValueEvolutionChart (club profile), DataTable"
+    },
+    {
+      "name": "Ranking_Underdogs",
+      "locatedIn": "src/lib/calc/engine.ts",
+      "dataSource": "Pts / (GM + 1) per season, averaged across seasons",
+      "computedColumns": ["per-epoch efficiency", "Media"],
+      "sortCriteria": "Media desc",
+      "visualization": "DataTable"
+    },
+    {
+      "name": "Ranking_Muralha",
+      "locatedIn": "src/lib/calc/engine.ts",
+      "dataSource": "GS / jogosInDivision per season, averaged",
+      "computedColumns": ["per-epoch GS/jogo", "Media"],
+      "sortCriteria": "Media asc (lower better)",
+      "visualization": "DataTable"
+    },
+    {
+      "name": "Rising_Stars",
+      "locatedIn": "src/lib/calc/engine.ts",
+      "dataSource": "Pts last 3 epochs",
+      "computedColumns": ["Crescimento = (v1 - v2) + (v2 - v3)"],
+      "sortCriteria": "Crescimento desc",
+      "visualization": "DataTable"
+    },
+    {
+      "name": "Golos, Assistencias",
+      "locatedIn": "src/lib/calc/engine.ts",
+      "dataSource": "seasons[].jogadores aggregated by player",
+      "computedColumns": ["per-epoch goals/assists", "Total"],
+      "sortCriteria": "Total desc",
+      "visualization": "DataTable, dashboard slices"
+    },
+    {
+      "name": "Treinador / Ranking_Treinador / Treinador_Coef",
+      "locatedIn": "src/lib/calc/engine.ts",
+      "dataSource": "association of coach → club per epoch and club Pts",
+      "computedColumns": ["per-epoch aggregated coach score", "Total/Coef", "__pos_*"] ,
+      "sortCriteria": "Total or Coef desc",
+      "visualization": "DataTable"
+    },
+    {
+      "name": "Player club aggregations (e.g., CA_Clubes, VP_Clubes, Salarios)",
+      "locatedIn": "src/lib/calc/engine.ts",
+      "dataSource": "lastSeason.jogadores grouped by club (top28 per club for some metrics)",
+      "computedColumns": ["avg CA/CP, sum VP/Salario, N players"],
+      "visualization": "DataTable"
+    }
+  ],
+  "summary": {
+    "notes": "computeAll produces many tables (keys visible in engine.ts). DataTables and pages render them. UploadPanel is the single processing entrypoint.",
+    "howToRun": "Open app, upload .xlsx via UploadPanel, click Process to run normalizeSeason + computeAll; results stored in useFMStore and rendered across pages."
+  }
+}

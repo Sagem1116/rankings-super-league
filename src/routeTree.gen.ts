@@ -9,38 +9,160 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ScoutingRouteImport } from './routes/scouting'
+import { Route as MapaMundoRouteImport } from './routes/mapa-mundo'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TabelaKeyRouteImport } from './routes/tabela.$key'
+import { Route as DashboardKeyRouteImport } from './routes/dashboard.$key'
+import { Route as PerfilTreinadorNomeRouteImport } from './routes/perfil.treinador.$nome'
+import { Route as PerfilPaisNomeRouteImport } from './routes/perfil.pais.$nome'
+import { Route as PerfilJogadorNomeRouteImport } from './routes/perfil.jogador.$nome'
+import { Route as PerfilClubeNomeRouteImport } from './routes/perfil.clube.$nome'
 
+const ScoutingRoute = ScoutingRouteImport.update({
+  id: '/scouting',
+  path: '/scouting',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MapaMundoRoute = MapaMundoRouteImport.update({
+  id: '/mapa-mundo',
+  path: '/mapa-mundo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TabelaKeyRoute = TabelaKeyRouteImport.update({
+  id: '/tabela/$key',
+  path: '/tabela/$key',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardKeyRoute = DashboardKeyRouteImport.update({
+  id: '/dashboard/$key',
+  path: '/dashboard/$key',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PerfilTreinadorNomeRoute = PerfilTreinadorNomeRouteImport.update({
+  id: '/perfil/treinador/$nome',
+  path: '/perfil/treinador/$nome',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PerfilPaisNomeRoute = PerfilPaisNomeRouteImport.update({
+  id: '/perfil/pais/$nome',
+  path: '/perfil/pais/$nome',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PerfilJogadorNomeRoute = PerfilJogadorNomeRouteImport.update({
+  id: '/perfil/jogador/$nome',
+  path: '/perfil/jogador/$nome',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PerfilClubeNomeRoute = PerfilClubeNomeRouteImport.update({
+  id: '/perfil/clube/$nome',
+  path: '/perfil/clube/$nome',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/mapa-mundo': typeof MapaMundoRoute
+  '/scouting': typeof ScoutingRoute
+  '/dashboard/$key': typeof DashboardKeyRoute
+  '/tabela/$key': typeof TabelaKeyRoute
+  '/perfil/clube/$nome': typeof PerfilClubeNomeRoute
+  '/perfil/jogador/$nome': typeof PerfilJogadorNomeRoute
+  '/perfil/pais/$nome': typeof PerfilPaisNomeRoute
+  '/perfil/treinador/$nome': typeof PerfilTreinadorNomeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/mapa-mundo': typeof MapaMundoRoute
+  '/scouting': typeof ScoutingRoute
+  '/dashboard/$key': typeof DashboardKeyRoute
+  '/tabela/$key': typeof TabelaKeyRoute
+  '/perfil/clube/$nome': typeof PerfilClubeNomeRoute
+  '/perfil/jogador/$nome': typeof PerfilJogadorNomeRoute
+  '/perfil/pais/$nome': typeof PerfilPaisNomeRoute
+  '/perfil/treinador/$nome': typeof PerfilTreinadorNomeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/mapa-mundo': typeof MapaMundoRoute
+  '/scouting': typeof ScoutingRoute
+  '/dashboard/$key': typeof DashboardKeyRoute
+  '/tabela/$key': typeof TabelaKeyRoute
+  '/perfil/clube/$nome': typeof PerfilClubeNomeRoute
+  '/perfil/jogador/$nome': typeof PerfilJogadorNomeRoute
+  '/perfil/pais/$nome': typeof PerfilPaisNomeRoute
+  '/perfil/treinador/$nome': typeof PerfilTreinadorNomeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/mapa-mundo'
+    | '/scouting'
+    | '/dashboard/$key'
+    | '/tabela/$key'
+    | '/perfil/clube/$nome'
+    | '/perfil/jogador/$nome'
+    | '/perfil/pais/$nome'
+    | '/perfil/treinador/$nome'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/mapa-mundo'
+    | '/scouting'
+    | '/dashboard/$key'
+    | '/tabela/$key'
+    | '/perfil/clube/$nome'
+    | '/perfil/jogador/$nome'
+    | '/perfil/pais/$nome'
+    | '/perfil/treinador/$nome'
+  id:
+    | '__root__'
+    | '/'
+    | '/mapa-mundo'
+    | '/scouting'
+    | '/dashboard/$key'
+    | '/tabela/$key'
+    | '/perfil/clube/$nome'
+    | '/perfil/jogador/$nome'
+    | '/perfil/pais/$nome'
+    | '/perfil/treinador/$nome'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  MapaMundoRoute: typeof MapaMundoRoute
+  ScoutingRoute: typeof ScoutingRoute
+  DashboardKeyRoute: typeof DashboardKeyRoute
+  TabelaKeyRoute: typeof TabelaKeyRoute
+  PerfilClubeNomeRoute: typeof PerfilClubeNomeRoute
+  PerfilJogadorNomeRoute: typeof PerfilJogadorNomeRoute
+  PerfilPaisNomeRoute: typeof PerfilPaisNomeRoute
+  PerfilTreinadorNomeRoute: typeof PerfilTreinadorNomeRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/scouting': {
+      id: '/scouting'
+      path: '/scouting'
+      fullPath: '/scouting'
+      preLoaderRoute: typeof ScoutingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mapa-mundo': {
+      id: '/mapa-mundo'
+      path: '/mapa-mundo'
+      fullPath: '/mapa-mundo'
+      preLoaderRoute: typeof MapaMundoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,12 +170,72 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tabela/$key': {
+      id: '/tabela/$key'
+      path: '/tabela/$key'
+      fullPath: '/tabela/$key'
+      preLoaderRoute: typeof TabelaKeyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/$key': {
+      id: '/dashboard/$key'
+      path: '/dashboard/$key'
+      fullPath: '/dashboard/$key'
+      preLoaderRoute: typeof DashboardKeyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/perfil/treinador/$nome': {
+      id: '/perfil/treinador/$nome'
+      path: '/perfil/treinador/$nome'
+      fullPath: '/perfil/treinador/$nome'
+      preLoaderRoute: typeof PerfilTreinadorNomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/perfil/pais/$nome': {
+      id: '/perfil/pais/$nome'
+      path: '/perfil/pais/$nome'
+      fullPath: '/perfil/pais/$nome'
+      preLoaderRoute: typeof PerfilPaisNomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/perfil/jogador/$nome': {
+      id: '/perfil/jogador/$nome'
+      path: '/perfil/jogador/$nome'
+      fullPath: '/perfil/jogador/$nome'
+      preLoaderRoute: typeof PerfilJogadorNomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/perfil/clube/$nome': {
+      id: '/perfil/clube/$nome'
+      path: '/perfil/clube/$nome'
+      fullPath: '/perfil/clube/$nome'
+      preLoaderRoute: typeof PerfilClubeNomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  MapaMundoRoute: MapaMundoRoute,
+  ScoutingRoute: ScoutingRoute,
+  DashboardKeyRoute: DashboardKeyRoute,
+  TabelaKeyRoute: TabelaKeyRoute,
+  PerfilClubeNomeRoute: PerfilClubeNomeRoute,
+  PerfilJogadorNomeRoute: PerfilJogadorNomeRoute,
+  PerfilPaisNomeRoute: PerfilPaisNomeRoute,
+  PerfilTreinadorNomeRoute: PerfilTreinadorNomeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
