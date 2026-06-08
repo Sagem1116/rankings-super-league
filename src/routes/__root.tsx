@@ -12,6 +12,7 @@ import appCss from "../styles.css?url";
 import { Sidebar } from "@/components/sidebar";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeControls } from "@/components/theme-controls";
+import { GlobalSearch, GlobalSearchTrigger } from "@/components/global-search";
 import { useState } from "react";
 import { Menu } from "lucide-react";
 
@@ -129,12 +130,12 @@ function RootComponent() {
 
 const SITE_NAV = [
   { label: "Dashboard", to: "/dashboard/Dashboard_Clubes" },
-  { label: "Moneyball", to: "/scouting" },
+  { label: "Comparador", to: "/comparador/clubes" },
+  { label: "Head-to-Head", to: "/h2h" },
+  { label: "Domínio", to: "/dominio" },
+  { label: "Scouting", to: "/scouting" },
   { label: "Role Scores", to: "/dashboard/Dashboard_Jogadores" },
-  { label: "Best XI", to: "/dashboard/Dashboard_Clubes" },
-  { label: "Fantasy Draft", to: "/scouting" },
   { label: "Staff Scores", to: "/dashboard/Dashboard_Treinadores" },
-  { label: "Tutorials", to: "/#tutorials" },
 ];
 
 function AppShell() {
@@ -169,6 +170,7 @@ function AppShell() {
               ))}
             </nav>
             <div className="ml-auto flex items-center gap-3">
+              <GlobalSearchTrigger />
               <div className="hidden items-center gap-2 rounded-full border border-violet-500/20 bg-violet-500/10 px-4 py-2 text-sm text-violet-100 md:flex shadow-[0_0_26px_-12px_rgba(167,139,250,0.2)]">
                 <span className="h-2.5 w-2.5 rounded-full bg-violet-300" />
                 Live scouting
@@ -183,6 +185,7 @@ function AppShell() {
         <main className="flex-1 overflow-x-hidden p-5 text-[15px] md:p-8"><Outlet /></main>
       </div>
       <Toaster richColors position="top-right" />
+      <GlobalSearch />
     </div>
   );
 }
