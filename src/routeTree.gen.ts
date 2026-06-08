@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ScoutingRouteImport } from './routes/scouting'
 import { Route as MapaMundoRouteImport } from './routes/mapa-mundo'
+import { Route as H2hRouteImport } from './routes/h2h'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TabelaKeyRouteImport } from './routes/tabela.$key'
 import { Route as DashboardKeyRouteImport } from './routes/dashboard.$key'
@@ -27,6 +28,11 @@ const ScoutingRoute = ScoutingRouteImport.update({
 const MapaMundoRoute = MapaMundoRouteImport.update({
   id: '/mapa-mundo',
   path: '/mapa-mundo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const H2hRoute = H2hRouteImport.update({
+  id: '/h2h',
+  path: '/h2h',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -67,6 +73,7 @@ const PerfilClubeNomeRoute = PerfilClubeNomeRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/h2h': typeof H2hRoute
   '/mapa-mundo': typeof MapaMundoRoute
   '/scouting': typeof ScoutingRoute
   '/dashboard/$key': typeof DashboardKeyRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/h2h': typeof H2hRoute
   '/mapa-mundo': typeof MapaMundoRoute
   '/scouting': typeof ScoutingRoute
   '/dashboard/$key': typeof DashboardKeyRoute
@@ -90,6 +98,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/h2h': typeof H2hRoute
   '/mapa-mundo': typeof MapaMundoRoute
   '/scouting': typeof ScoutingRoute
   '/dashboard/$key': typeof DashboardKeyRoute
@@ -103,6 +112,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/h2h'
     | '/mapa-mundo'
     | '/scouting'
     | '/dashboard/$key'
@@ -114,6 +124,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/h2h'
     | '/mapa-mundo'
     | '/scouting'
     | '/dashboard/$key'
@@ -125,6 +136,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/h2h'
     | '/mapa-mundo'
     | '/scouting'
     | '/dashboard/$key'
@@ -137,6 +149,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  H2hRoute: typeof H2hRoute
   MapaMundoRoute: typeof MapaMundoRoute
   ScoutingRoute: typeof ScoutingRoute
   DashboardKeyRoute: typeof DashboardKeyRoute
@@ -161,6 +174,13 @@ declare module '@tanstack/react-router' {
       path: '/mapa-mundo'
       fullPath: '/mapa-mundo'
       preLoaderRoute: typeof MapaMundoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/h2h': {
+      id: '/h2h'
+      path: '/h2h'
+      fullPath: '/h2h'
+      preLoaderRoute: typeof H2hRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -217,6 +237,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  H2hRoute: H2hRoute,
   MapaMundoRoute: MapaMundoRoute,
   ScoutingRoute: ScoutingRoute,
   DashboardKeyRoute: DashboardKeyRoute,
