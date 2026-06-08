@@ -393,31 +393,29 @@ export function computeAll(
     if (source && source.epochKeys) {
       const allEpochs = source.epochKeys; // most recent first
       const cumulativeEpochs = [...allEpochs].reverse(); // chronological: oldest to newest
+      const epRange = cumulativeEpochs.length
+        ? `${cumulativeEpochs[0]} → ${cumulativeEpochs[cumulativeEpochs.length - 1]}`
+        : "—";
 
-      const rows = source.rows.map((r) => {
+      const cumulativeRows = source.rows.map((r) => {
         const row: any = { Equipa: r.Equipa };
         let cumulativeCoef = 0;
-
-        cumulativeEpochs.forEach((e) => {
+        cumulativeEpochs.forEach((e, i) => {
           const v = Number(r[e]) || 0;
           cumulativeCoef += v;
           row[e] = +cumulativeCoef.toFixed(3);
+          row[`__tip_${e}`] = `Soma integral de ${i + 1} época(s): ${cumulativeEpochs
+            .slice(0, i + 1)
+            .join(" + ")} = ${cumulativeCoef.toFixed(3)}`;
         });
-
         return row;
       });
 
-      const cumulativeRows = rows.map((r) => ({ ...r }));
       allEpochs.forEach((e) => {
         const sorted = [...cumulativeRows].sort((a, b) => (b[e] ?? 0) - (a[e] ?? 0));
         sorted.forEach((row, pos) => {
           row[`__pos_${e}`] = pos + 1;
-        });
-      });
-      cumulativeRows.forEach((row) => {
-        allEpochs.forEach((e) => {
-          const pos = row[`__pos_${e}`];
-          row[`__tip_${e}`] = pos ? `Posição acumulada: #${pos}` : "";
+          row[`__tip_${e}`] = `${row[`__tip_${e}`] || ""}  ·  Posição acumulada: #${pos + 1}`;
         });
       });
 
@@ -425,10 +423,10 @@ export function computeAll(
         key: "Posicoes_Coef_Clube_Fixos",
         title: "Coef. Clube (Fixos) - Valores Acumulados",
         category: "Posições Geral",
-        description: "Valores acumulados do coeficiente de cada clube até cada época.",
+        description: `Soma integral do Coef. Clube (Fixos) — inclui todas as ${cumulativeEpochs.length} época(s) disponíveis (${epRange}). Cada coluna mostra o acumulado desde a primeira época até essa coluna (sem janela de 5 anos).`,
         columns: [
           { key: "Equipa", label: "Equipa", type: "text" },
-          ...allEpochs.map((e) => ({ key: e, label: e, type: "num" as const, decimals: 3, tooltipKey: `__tip_${e}` })),
+          ...allEpochs.map((e) => ({ key: e, label: `≤ ${e}`, type: "num" as const, decimals: 3, tooltipKey: `__tip_${e}` })),
         ],
         rows: cumulativeRows,
         sortKey: allEpochs[0], // sort by most recent cumulative value
@@ -438,6 +436,7 @@ export function computeAll(
       };
     }
   }
+
 
   /* ============================== Países ================================== */
   function aggregateBy<K>(
