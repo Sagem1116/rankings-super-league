@@ -124,7 +124,9 @@ describe("Posições acumuladas — soma integral de todas as épocas", () => {
     expect(row["2017"]).toBe(70);
     // A diferença entre épocas consecutivas deve ser >0 (somatório monotónico crescente)
     for (let i = 1; i < epochsAsc.length; i++) {
-      expect(row[epochsAsc[i]]).toBeGreaterThan(row[epochsAsc[i - 1]] - 0.001);
+      const prev = Number(row[epochsAsc[i - 1]]) || 0;
+      const cur = Number(row[epochsAsc[i]]) || 0;
+      expect(cur).toBeGreaterThan(prev - 0.001);
     }
   });
 });
