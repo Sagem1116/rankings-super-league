@@ -1059,8 +1059,8 @@ export function computeAll(
       entityCol: string,
     ) {
       if (!source?.epochKeys) return;
-      const epochs = source.epochKeys; // most recent first
-      const cumulativeEpochs = [...epochs].reverse(); // chronological
+      const epochs = source.epochKeys;
+      const cumulativeEpochs = [...epochs].sort((a, b) => String(a).localeCompare(String(b))); // chronological ascending
       const epRange = cumulativeEpochs.length
         ? `${cumulativeEpochs[0]} → ${cumulativeEpochs[cumulativeEpochs.length - 1]}`
         : "—";
