@@ -389,7 +389,7 @@ export function computeAll(
 
         // Calculate cumulative coefficients
         cumulativeLast5.forEach((e, i) => {
-          const v = r[e] || 0;
+          const v = Number(r[e]) || 0;
           cumulativeCoef += v * COEF_WEIGHTS[COEF_WEIGHTS.length - 1 - i]; // reverse weights for chronological order
           row[e] = +cumulativeCoef.toFixed(3);
         });
@@ -687,12 +687,12 @@ export function computeAll(
         Equipa: row.Equipa,
         TotalPts: row.Total,
         TotalPtsFixos: totalFixos,
-        Diferenca: +(row.Total - totalFixos).toFixed(2),
+        Diferenca: +(Number(row.Total ?? 0) - Number(totalFixos)).toFixed(2),
         Coef: coefValue,
         CoefFixos: coefFixValue,
         Golos: golsValue,
         GolosSofridos: gsValue,
-        DiferencaGols: +(golsValue - gsValue).toFixed(0),
+        DiferencaGols: +(Number(golsValue) - Number(gsValue)).toFixed(0),
       });
     }
     out.Comparador_Clubes = {
@@ -888,10 +888,10 @@ export function computeAll(
   /* ============================ Mapa_Correlacao ============================ */
   {
     const clubs = out.Pontos_Totais.rows.map((row: any) => row.Equipa);
-    const xPts = clubs.map((clube) => out.Pontos_Totais.rows.find((r: any) => r.Equipa === clube)?.Total ?? 0);
-    const xPtsFixos = clubs.map((clube) => out.Pontos_Totais_Fixos.rows.find((r: any) => r.Equipa === clube)?.Total ?? 0);
-    const xCoef = clubs.map((clube) => out.Coef_Clube.rows.find((r: any) => r.Equipa === clube)?.Coef ?? 0);
-    const xGols = clubs.map((clube) => out.Golos_Marcados.rows.find((r: any) => r.Equipa === clube)?.Total ?? 0);
+    const xPts = clubs.map((clube) => Number(out.Pontos_Totais.rows.find((r: any) => r.Equipa === clube)?.Total ?? 0));
+    const xPtsFixos = clubs.map((clube) => Number(out.Pontos_Totais_Fixos.rows.find((r: any) => r.Equipa === clube)?.Total ?? 0));
+    const xCoef = clubs.map((clube) => Number(out.Coef_Clube.rows.find((r: any) => r.Equipa === clube)?.Coef ?? 0));
+    const xGols = clubs.map((clube) => Number(out.Golos_Marcados.rows.find((r: any) => r.Equipa === clube)?.Total ?? 0));
     const rows = [
       { Metrica: "Pts vs Coef", Correlacao: +pearsonCorrelation(xPts, xCoef).toFixed(3) },
       { Metrica: "Pts vs Pts Fixos", Correlacao: +pearsonCorrelation(xPts, xPtsFixos).toFixed(3) },
