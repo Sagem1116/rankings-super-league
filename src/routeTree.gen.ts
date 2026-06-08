@@ -12,9 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ScoutingRouteImport } from './routes/scouting'
 import { Route as MapaMundoRouteImport } from './routes/mapa-mundo'
 import { Route as H2hRouteImport } from './routes/h2h'
+import { Route as DominioRouteImport } from './routes/dominio'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TabelaKeyRouteImport } from './routes/tabela.$key'
 import { Route as DashboardKeyRouteImport } from './routes/dashboard.$key'
+import { Route as ComparadorClubesRouteImport } from './routes/comparador.clubes'
 import { Route as PerfilTreinadorNomeRouteImport } from './routes/perfil.treinador.$nome'
 import { Route as PerfilPaisNomeRouteImport } from './routes/perfil.pais.$nome'
 import { Route as PerfilJogadorNomeRouteImport } from './routes/perfil.jogador.$nome'
@@ -35,6 +37,11 @@ const H2hRoute = H2hRouteImport.update({
   path: '/h2h',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DominioRoute = DominioRouteImport.update({
+  id: '/dominio',
+  path: '/dominio',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -48,6 +55,11 @@ const TabelaKeyRoute = TabelaKeyRouteImport.update({
 const DashboardKeyRoute = DashboardKeyRouteImport.update({
   id: '/dashboard/$key',
   path: '/dashboard/$key',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ComparadorClubesRoute = ComparadorClubesRouteImport.update({
+  id: '/comparador/clubes',
+  path: '/comparador/clubes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PerfilTreinadorNomeRoute = PerfilTreinadorNomeRouteImport.update({
@@ -73,9 +85,11 @@ const PerfilClubeNomeRoute = PerfilClubeNomeRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dominio': typeof DominioRoute
   '/h2h': typeof H2hRoute
   '/mapa-mundo': typeof MapaMundoRoute
   '/scouting': typeof ScoutingRoute
+  '/comparador/clubes': typeof ComparadorClubesRoute
   '/dashboard/$key': typeof DashboardKeyRoute
   '/tabela/$key': typeof TabelaKeyRoute
   '/perfil/clube/$nome': typeof PerfilClubeNomeRoute
@@ -85,9 +99,11 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dominio': typeof DominioRoute
   '/h2h': typeof H2hRoute
   '/mapa-mundo': typeof MapaMundoRoute
   '/scouting': typeof ScoutingRoute
+  '/comparador/clubes': typeof ComparadorClubesRoute
   '/dashboard/$key': typeof DashboardKeyRoute
   '/tabela/$key': typeof TabelaKeyRoute
   '/perfil/clube/$nome': typeof PerfilClubeNomeRoute
@@ -98,9 +114,11 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/dominio': typeof DominioRoute
   '/h2h': typeof H2hRoute
   '/mapa-mundo': typeof MapaMundoRoute
   '/scouting': typeof ScoutingRoute
+  '/comparador/clubes': typeof ComparadorClubesRoute
   '/dashboard/$key': typeof DashboardKeyRoute
   '/tabela/$key': typeof TabelaKeyRoute
   '/perfil/clube/$nome': typeof PerfilClubeNomeRoute
@@ -112,9 +130,11 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/dominio'
     | '/h2h'
     | '/mapa-mundo'
     | '/scouting'
+    | '/comparador/clubes'
     | '/dashboard/$key'
     | '/tabela/$key'
     | '/perfil/clube/$nome'
@@ -124,9 +144,11 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/dominio'
     | '/h2h'
     | '/mapa-mundo'
     | '/scouting'
+    | '/comparador/clubes'
     | '/dashboard/$key'
     | '/tabela/$key'
     | '/perfil/clube/$nome'
@@ -136,9 +158,11 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/dominio'
     | '/h2h'
     | '/mapa-mundo'
     | '/scouting'
+    | '/comparador/clubes'
     | '/dashboard/$key'
     | '/tabela/$key'
     | '/perfil/clube/$nome'
@@ -149,9 +173,11 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DominioRoute: typeof DominioRoute
   H2hRoute: typeof H2hRoute
   MapaMundoRoute: typeof MapaMundoRoute
   ScoutingRoute: typeof ScoutingRoute
+  ComparadorClubesRoute: typeof ComparadorClubesRoute
   DashboardKeyRoute: typeof DashboardKeyRoute
   TabelaKeyRoute: typeof TabelaKeyRoute
   PerfilClubeNomeRoute: typeof PerfilClubeNomeRoute
@@ -183,6 +209,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof H2hRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dominio': {
+      id: '/dominio'
+      path: '/dominio'
+      fullPath: '/dominio'
+      preLoaderRoute: typeof DominioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -202,6 +235,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard/$key'
       fullPath: '/dashboard/$key'
       preLoaderRoute: typeof DashboardKeyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/comparador/clubes': {
+      id: '/comparador/clubes'
+      path: '/comparador/clubes'
+      fullPath: '/comparador/clubes'
+      preLoaderRoute: typeof ComparadorClubesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/perfil/treinador/$nome': {
@@ -237,9 +277,11 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DominioRoute: DominioRoute,
   H2hRoute: H2hRoute,
   MapaMundoRoute: MapaMundoRoute,
   ScoutingRoute: ScoutingRoute,
+  ComparadorClubesRoute: ComparadorClubesRoute,
   DashboardKeyRoute: DashboardKeyRoute,
   TabelaKeyRoute: TabelaKeyRoute,
   PerfilClubeNomeRoute: PerfilClubeNomeRoute,
