@@ -1057,44 +1057,44 @@ export function computeAll(
       title: string,
       description: string,
       entityCol: string,
-      useWeights = true,
     ) {
       if (!source?.epochKeys) return;
-      const epochs = source.epochKeys;
-      const cumulativeEpochs = [...epochs].reverse();
-      const rows = source.rows.map((r) => {
+      const epochs = source.epochKeys; // most recent first
+      const cumulativeEpochs = [...epochs].reverse(); // chronological
+      const epRange = cumulativeEpochs.length
+        ? `${cumulativeEpochs[0]} → ${cumulativeEpochs[cumulativeEpochs.length - 1]}`
+        : "—";
+
+      const cumulativeRows = source.rows.map((r) => {
         const row: any = { [entityCol]: r[entityCol] };
         let cumulativeValue = 0;
         cumulativeEpochs.forEach((e, i) => {
           const v = typeof r[e] === "number" ? r[e] : Number(r[e]) || 0;
-          const distFromRecent = epochs.length - 1 - i;
-          const weight = useWeights ? getCoefWeight(distFromRecent) : 1;
-          cumulativeValue += v * weight;
+          cumulativeValue += v; // soma integral, sem janela de 5 anos
           row[e] = +cumulativeValue.toFixed(3);
+          row[`__tip_${e}`] = `Soma integral de ${i + 1} época(s) (${cumulativeEpochs[0]} → ${e}) = ${cumulativeValue.toFixed(3)}`;
         });
         return row;
       });
-      const cumulativeRows = rows.map((r) => ({ ...r }));
+
       epochs.forEach((e) => {
         const sorted = [...cumulativeRows].sort((a, b) => (b[e] ?? 0) - (a[e] ?? 0));
         sorted.forEach((row, pos) => {
           row[`__pos_${e}`] = pos + 1;
+          row[`__tip_${e}`] = `${row[`__tip_${e}`] || ""}  ·  Posição acumulada: #${pos + 1}`;
         });
       });
-      cumulativeRows.forEach((row) => {
-        epochs.forEach((e) => {
-          const pos = row[`__pos_${e}`];
-          row[`__tip_${e}`] = pos ? `Posição acumulada: #${pos}` : "";
-        });
-      });
+
+      const fullDescription = `${description} Inclui todas as ${cumulativeEpochs.length} época(s) (${epRange}); cada coluna é a soma integral desde a primeira época até essa coluna.`;
+
       out[key] = {
         key,
         title,
         category: "Posições Geral",
-        description,
+        description: fullDescription,
         columns: [
           { key: entityCol, label: entityCol, type: "text" },
-          ...epochs.map((e) => ({ key: e, label: e, type: "num" as const, decimals: 3, tooltipKey: `__tip_${e}` })),
+          ...epochs.map((e) => ({ key: e, label: `≤ ${e}`, type: "num" as const, decimals: 3, tooltipKey: `__tip_${e}` })),
         ],
         rows: cumulativeRows,
         sortKey: epochs[0],
@@ -1111,7 +1111,6 @@ export function computeAll(
       "Coef. Treinador (Fixos) - Valores Acumulados",
       "Valores acumulados do coeficiente de cada treinador até cada época.",
       "Treinador",
-      false,
     );
     buildCumulativePage(
       out.Ranking_Treinador,
@@ -1119,7 +1118,6 @@ export function computeAll(
       "Ranking Treinador - Valores Acumulados",
       "Valores acumulados do ranking do treinador por época.",
       "Treinador",
-      false,
     );
     buildCumulativePage(
       out.Ranking_Treinador_Fixos,
@@ -1127,7 +1125,6 @@ export function computeAll(
       "Ranking Treinador (Fixos) - Valores Acumulados",
       "Valores acumulados do ranking do treinador com pesos fixos.",
       "Treinador",
-      false,
     );
     buildCumulativePage(
       out.Pontos_Totais,
@@ -1135,7 +1132,6 @@ export function computeAll(
       "Pontos Totais - Valores Acumulados",
       "Valores acumulados de pontos totais por equipa até cada época.",
       "Equipa",
-      false,
     );
     buildCumulativePage(
       out.Pontos_Totais_Fixos,
@@ -1143,8 +1139,8 @@ export function computeAll(
       "Pontos Totais (Fixos) - Valores Acumulados",
       "Valores acumulados de pontos totais ponderados por pesos fixos por equipa até cada época.",
       "Equipa",
-      false,
     );
+
 
     // Treinador por Pais (Nac)
     function buildTrainerPais(weightFor: (div: number) => number, key: string, title: string) {
