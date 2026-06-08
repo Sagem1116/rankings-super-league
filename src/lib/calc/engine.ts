@@ -503,6 +503,7 @@ export function computeAll(
   }
 
   function buildCoefPaises(weightFor: (div: number) => number, key: string, title: string) {
+    const allEpochs = [...epochs].reverse();
     const last5 = epochs.slice(-5).reverse();
     const map = new Map<string, Map<string, number>>();
     for (const s of seasons) {
@@ -518,13 +519,19 @@ export function computeAll(
     const rows: any[] = [];
     for (const [pais, byEp] of map) {
       let coef = 0; const row: any = { Pais: pais };
-      last5.forEach((e, i) => {
-        const v = byEp.get(e) ?? 0; row[e] = +v.toFixed(2); coef += v * COEF_WEIGHTS[i];
-        row[`__tip_${e}`] = `${e}: soma ${v.toFixed(2)} × ${COEF_WEIGHTS[i]} (peso temporal) → ${(v * COEF_WEIGHTS[i]).toFixed(2)}`;
+      allEpochs.forEach((e) => {
+        const v = byEp.get(e) ?? 0; row[e] = +v.toFixed(2);
+        const last5Idx = last5.indexOf(e);
+        if (last5Idx >= 0) {
+          coef += v * COEF_WEIGHTS[last5Idx];
+          row[`__tip_${e}`] = `${e}: soma ${v.toFixed(2)} × ${COEF_WEIGHTS[last5Idx]} (peso temporal) → ${(v * COEF_WEIGHTS[last5Idx]).toFixed(2)}`;
+        } else {
+          row[`__tip_${e}`] = `${e}: soma ${v.toFixed(2)} (fora da janela do coef)`;
+        }
       });
       row.Coef = +coef.toFixed(3); rows.push(row);
     }
-    last5.forEach((e) => {
+    allEpochs.forEach((e) => {
       const sorted = [...rows].sort((a, b) => (b[e] ?? 0) - (a[e] ?? 0));
       sorted.forEach((row, pos) => {
         row[`__pos_${e}`] = pos + 1;
@@ -534,10 +541,10 @@ export function computeAll(
       key, title, category: "Países", description: title,
       columns: [
         { key: "Pais", label: "País", type: "text" },
-        ...last5.map((e) => ({ key: e, label: e, type: "num" as const, decimals: 2, tooltipKey: `__tip_${e}` })),
+        ...allEpochs.map((e) => ({ key: e, label: e, type: "num" as const, decimals: 2, tooltipKey: `__tip_${e}` })),
         { key: "Coef", label: "Coef", type: "num", decimals: 3 },
       ],
-      rows, sortKey: "Coef", sortDir: "desc", entityKey: "Pais", epochKeys: last5,
+      rows, sortKey: "Coef", sortDir: "desc", entityKey: "Pais", epochKeys: allEpochs,
     };
   }
   buildCoefPaises(() => 1, "Coef_Paises", "Coef. Países");
