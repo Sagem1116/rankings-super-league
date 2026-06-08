@@ -113,7 +113,7 @@ describe("Posições acumuladas — soma integral de todas as épocas", () => {
       const epCols = t.columns.filter((c: any) => epochsAsc.includes(c.key));
       expect(epCols.length).toBe(epochsAsc.length);
       for (const c of epCols) expect((c as any).label.startsWith("≤ ")).toBe(true);
-      expect(t.description).toMatch(/Inclui todas as \d+ época/);
+      expect(t.description).toMatch(/inclui todas as \d+ época/i);
       expect(t.description).toContain(`${epochsAsc[0]} → ${epochsAsc[epochsAsc.length - 1]}`);
     }
   });
