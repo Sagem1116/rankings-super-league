@@ -391,8 +391,8 @@ export function computeAll(
   {
     const source = out.Coef_Clube_Fixos;
     if (source && source.epochKeys) {
-      const allEpochs = source.epochKeys; // most recent first
-      const cumulativeEpochs = [...allEpochs].reverse(); // chronological: oldest to newest
+      const allEpochs = source.epochKeys;
+      const cumulativeEpochs = [...allEpochs].sort((a, b) => String(a).localeCompare(String(b))); // chronological ascending
       const epRange = cumulativeEpochs.length
         ? `${cumulativeEpochs[0]} → ${cumulativeEpochs[cumulativeEpochs.length - 1]}`
         : "—";
