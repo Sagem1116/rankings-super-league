@@ -391,17 +391,17 @@ export function computeAll(
   {
     const source = out.Coef_Clube_Fixos;
     if (source && source.epochKeys) {
-      const last5 = source.epochKeys; // already in order: most recent first
-      const cumulativeLast5 = [...last5].reverse(); // chronological order: oldest to newest
+      const allEpochs = source.epochKeys; // most recent first
+      const cumulativeEpochs = [...allEpochs].reverse(); // chronological: oldest to newest
 
       const rows = source.rows.map((r) => {
         const row: any = { Equipa: r.Equipa };
         let cumulativeCoef = 0;
 
-        // Calculate cumulative coefficients
-        cumulativeLast5.forEach((e, i) => {
+        cumulativeEpochs.forEach((e, i) => {
           const v = Number(r[e]) || 0;
-          cumulativeCoef += v * COEF_WEIGHTS[COEF_WEIGHTS.length - 1 - i]; // reverse weights for chronological order
+          const distFromRecent = allEpochs.length - 1 - i;
+          cumulativeCoef += v * getCoefWeight(distFromRecent);
           row[e] = +cumulativeCoef.toFixed(3);
         });
 
@@ -409,14 +409,14 @@ export function computeAll(
       });
 
       const cumulativeRows = rows.map((r) => ({ ...r }));
-      last5.forEach((e) => {
+      allEpochs.forEach((e) => {
         const sorted = [...cumulativeRows].sort((a, b) => (b[e] ?? 0) - (a[e] ?? 0));
         sorted.forEach((row, pos) => {
           row[`__pos_${e}`] = pos + 1;
         });
       });
       cumulativeRows.forEach((row) => {
-        last5.forEach((e) => {
+        allEpochs.forEach((e) => {
           const pos = row[`__pos_${e}`];
           row[`__tip_${e}`] = pos ? `Posição acumulada: #${pos}` : "";
         });
@@ -429,13 +429,13 @@ export function computeAll(
         description: "Valores acumulados do coeficiente de cada clube até cada época.",
         columns: [
           { key: "Equipa", label: "Equipa", type: "text" },
-          ...last5.map((e) => ({ key: e, label: e, type: "num" as const, decimals: 3, tooltipKey: `__tip_${e}` })),
+          ...allEpochs.map((e) => ({ key: e, label: e, type: "num" as const, decimals: 3, tooltipKey: `__tip_${e}` })),
         ],
         rows: cumulativeRows,
-        sortKey: last5[0], // sort by most recent cumulative value
+        sortKey: allEpochs[0], // sort by most recent cumulative value
         sortDir: "desc",
         entityKey: "Equipa",
-        epochKeys: last5,
+        epochKeys: allEpochs,
       };
     }
   }
