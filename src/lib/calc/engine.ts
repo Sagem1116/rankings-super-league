@@ -1069,7 +1069,8 @@ export function computeAll(
         let cumulativeValue = 0;
         cumulativeEpochs.forEach((e, i) => {
           const v = typeof r[e] === "number" ? r[e] : Number(r[e]) || 0;
-          const weight = useWeights ? (COEF_WEIGHTS[COEF_WEIGHTS.length - 1 - i] ?? 1) : 1;
+          const distFromRecent = epochs.length - 1 - i;
+          const weight = useWeights ? getCoefWeight(distFromRecent) : 1;
           cumulativeValue += v * weight;
           row[e] = +cumulativeValue.toFixed(3);
         });
