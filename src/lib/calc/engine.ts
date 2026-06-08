@@ -398,10 +398,9 @@ export function computeAll(
         const row: any = { Equipa: r.Equipa };
         let cumulativeCoef = 0;
 
-        cumulativeEpochs.forEach((e, i) => {
+        cumulativeEpochs.forEach((e) => {
           const v = Number(r[e]) || 0;
-          const distFromRecent = allEpochs.length - 1 - i;
-          cumulativeCoef += v * getCoefWeight(distFromRecent);
+          cumulativeCoef += v;
           row[e] = +cumulativeCoef.toFixed(3);
         });
 
@@ -1113,6 +1112,7 @@ export function computeAll(
       "Coef. Treinador (Fixos) - Valores Acumulados",
       "Valores acumulados do coeficiente de cada treinador até cada época.",
       "Treinador",
+      false,
     );
     buildCumulativePage(
       out.Ranking_Treinador,
@@ -1120,6 +1120,7 @@ export function computeAll(
       "Ranking Treinador - Valores Acumulados",
       "Valores acumulados do ranking do treinador por época.",
       "Treinador",
+      false,
     );
     buildCumulativePage(
       out.Ranking_Treinador_Fixos,
@@ -1127,6 +1128,7 @@ export function computeAll(
       "Ranking Treinador (Fixos) - Valores Acumulados",
       "Valores acumulados do ranking do treinador com pesos fixos.",
       "Treinador",
+      false,
     );
     buildCumulativePage(
       out.Pontos_Totais,
