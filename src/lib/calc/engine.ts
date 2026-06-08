@@ -398,10 +398,9 @@ export function computeAll(
         const row: any = { Equipa: r.Equipa };
         let cumulativeCoef = 0;
 
-        cumulativeEpochs.forEach((e, i) => {
+        cumulativeEpochs.forEach((e) => {
           const v = Number(r[e]) || 0;
-          const distFromRecent = allEpochs.length - 1 - i;
-          cumulativeCoef += v * getCoefWeight(distFromRecent);
+          cumulativeCoef += v;
           row[e] = +cumulativeCoef.toFixed(3);
         });
 
