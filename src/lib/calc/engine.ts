@@ -329,7 +329,6 @@ export function computeAll(
   }
 
   function buildCoefClube(weightFor: (div: number) => number, key: string, title: string) {
-    // For each team, gather (epoca -> Pts*w + bonus). Coef = weighted sum across last 5 epochs.
     const teams = new Map<string, Map<string, { v: number; pts: number; w: number; bonus: number; div: number; pos: number; inf: string }>>();
     for (const s of seasons) {
       for (const r of s.rankings) {
@@ -340,24 +339,35 @@ export function computeAll(
         teams.get(r.Equipa)!.set(s.epoca, { v, pts: r.Pts, w, bonus, div: r.Divisao, pos: r.Pos, inf: r.Inf });
       }
     }
-    const last5 = epochs.slice(-5).reverse(); // most recent first
+    const allEpochs = [...epochs].reverse(); // most recent first, ALL
+    const last5 = epochs.slice(-5).reverse(); // for Coef calculation
     const rows: any[] = [];
     for (const [team, byEp] of teams) {
       let coef = 0;
       const row: any = { Equipa: team };
-      last5.forEach((e, i) => {
+      allEpochs.forEach((e) => {
         const d = byEp.get(e);
         const v = d?.v ?? 0;
         row[e] = +v.toFixed(2);
+        const last5Idx = last5.indexOf(e);
+        if (last5Idx >= 0) {
+          row[`__tip_${e}`] = d
+            ? `${e}: Pts ${d.pts} × peso ${d.w.toFixed(2)} + bónus ${d.bonus} = ${v.toFixed(2)} × ${COEF_WEIGHTS[last5Idx]} (peso temporal) → ${(v * COEF_WEIGHTS[last5Idx]).toFixed(2)}`
+            : `${e}: sem dados (0 × ${COEF_WEIGHTS[last5Idx]})`;
+        } else {
+          row[`__tip_${e}`] = d
+            ? `${e}: Pts ${d.pts} × peso ${d.w.toFixed(2)} + bónus ${d.bonus} = ${v.toFixed(2)} (fora da janela do coef)`
+            : `${e}: sem dados`;
+        }
+      });
+      last5.forEach((e, i) => {
+        const v = byEp.get(e)?.v ?? 0;
         coef += v * COEF_WEIGHTS[i];
-        row[`__tip_${e}`] = d
-          ? `${e}: Pts ${d.pts} × peso ${d.w.toFixed(2)} + bónus ${d.bonus} = ${v.toFixed(2)} × ${COEF_WEIGHTS[i]} (peso temporal) → ${(v * COEF_WEIGHTS[i]).toFixed(2)}`
-          : "";
       });
       row.Coef = +coef.toFixed(3);
       rows.push(row);
     }
-    last5.forEach((e) => {
+    allEpochs.forEach((e) => {
       const sorted = [...rows].sort((a, b) => (b[e] ?? 0) - (a[e] ?? 0));
       sorted.forEach((row, pos) => {
         row[`__pos_${e}`] = pos + 1;
@@ -367,10 +377,10 @@ export function computeAll(
       key, title, category: "Clubes", description: title,
       columns: [
         { key: "Equipa", label: "Equipa", type: "text" },
-        ...last5.map((e) => ({ key: e, label: e, type: "num" as const, decimals: 2, tooltipKey: `__tip_${e}` })),
+        ...allEpochs.map((e) => ({ key: e, label: e, type: "num" as const, decimals: 2, tooltipKey: `__tip_${e}` })),
         { key: "Coef", label: "Coef", type: "num", decimals: 3 },
       ],
-      rows, sortKey: "Coef", sortDir: "desc", entityKey: "Equipa", epochKeys: last5,
+      rows, sortKey: "Coef", sortDir: "desc", entityKey: "Equipa", epochKeys: allEpochs,
     };
   }
   buildCoefClube(() => 1, "Coef_Clube", "Coeficiente de Clube");
