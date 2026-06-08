@@ -5,7 +5,7 @@ export function ValueEvolutionChart({
   title,
   valueLabel = "Valor",
 }: {
-  data: Array<{ epoca: string; value: number; pos?: number | undefined }>;
+  data: Array<{ epoca: string; value: number; pos?: number | string | null | undefined }>;
   title: string;
   valueLabel?: string;
 }) {
