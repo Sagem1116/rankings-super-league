@@ -12,7 +12,7 @@ const THEMES = [
 ] as const;
 
 type Theme = (typeof THEMES)[number]["key"];
-const DEFAULTS = { sat: 1, bright: 0, bg: 0, theme: "holo" as const };
+const DEFAULTS: { sat: number; bright: number; bg: number; theme: Theme } = { sat: 1, bright: 0, bg: 0, theme: "holo" };
 
 type Settings = typeof DEFAULTS;
 
