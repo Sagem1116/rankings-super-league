@@ -1112,6 +1112,7 @@ export function computeAll(
       "Coef. Treinador (Fixos) - Valores Acumulados",
       "Valores acumulados do coeficiente de cada treinador até cada época.",
       "Treinador",
+      false,
     );
     buildCumulativePage(
       out.Ranking_Treinador,
@@ -1119,6 +1120,7 @@ export function computeAll(
       "Ranking Treinador - Valores Acumulados",
       "Valores acumulados do ranking do treinador por época.",
       "Treinador",
+      false,
     );
     buildCumulativePage(
       out.Ranking_Treinador_Fixos,
@@ -1126,6 +1128,7 @@ export function computeAll(
       "Ranking Treinador (Fixos) - Valores Acumulados",
       "Valores acumulados do ranking do treinador com pesos fixos.",
       "Treinador",
+      false,
     );
     buildCumulativePage(
       out.Pontos_Totais,
