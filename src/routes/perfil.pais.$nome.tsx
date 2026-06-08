@@ -6,9 +6,9 @@ import { buildCountryProfile } from "@/lib/profiles";
 
 export const Route = createFileRoute("/perfil/pais/$nome")({ component: CountryProfilePage });
 
-function fmtMarkers(arr: { epoca: string; divisao: number; pos: number; clube: string }[]) {
+function fmtMarkers(arr: { epoca: string; divisao: number; pos: number; clube?: string }[]) {
   if (!arr.length) return "—";
-  return arr.map((m) => `${m.epoca} — ${m.clube} (Div ${m.divisao}, ${m.pos}º)`).join(", ");
+  return arr.map((m) => `${m.epoca} — ${m.clube ?? ""} (Div ${m.divisao}, ${m.pos}º)`).join(", ");
 }
 
 function Stat({ label, value, detail }: { label: string; value: number; detail?: string }) {
