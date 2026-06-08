@@ -5,6 +5,7 @@ const JOGOS_DIV: Record<number, number> = {
   1: 180, 2: 600, 3: 600, 4: 600, 5: 600, 6: 600, 7: 600, 8: 600, 9: 600, 10: 600, 11: 700,
 };
 const COEF_WEIGHTS = [1.0, 0.8, 0.6, 0.4, 0.2];
+function getCoefWeight(i_from_recent: number): number { return Math.max(0, 1.0 - i_from_recent * 0.2); }
 
 const num = (v: any, def = 0): number => {
   if (v === null || v === undefined || v === "") return def;
