@@ -40,7 +40,7 @@ export function RankingEvolutionChart({ data, title, showLegend = true, seriesKe
 
   const seriesValues = series.map((value) => ({
     name: value,
-    data: chartData.filter((d) => String(d[seriesKey] ?? "") === value),
+    data: chartData.filter((d) => String((seriesKey ? d[seriesKey] : "") ?? "") === value),
   }));
 
   const maxPos = Math.max(...sortedData.map((d) => d.pos)) + 2;
@@ -71,11 +71,11 @@ export function RankingEvolutionChart({ data, title, showLegend = true, seriesKe
               label={{ value: "Posição", angle: -90, position: "insideLeft" }}
             />
             <Tooltip
-              formatter={(value: any, name: string) => {
+              formatter={((value: any, name: any) => {
                 if (name === "pos") return [`${value}º`, "Posição"];
                 if (name === "divisao") return [`Div ${value}`, "Divisão"];
                 return [value, name];
-              }}
+              }) as any}
               labelFormatter={(label) => `Época: ${label}`}
               contentStyle={{
                 backgroundColor: "rgba(0, 0, 0, 0.8)",

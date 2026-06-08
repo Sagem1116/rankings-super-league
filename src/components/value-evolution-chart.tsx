@@ -32,14 +32,14 @@ export function ValueEvolutionChart({
               domain={["auto", "auto"]}
             />
             <Tooltip
-              formatter={(value: number, name: string, props: any) => {
+              formatter={((value: any, _name: any, props: any) => {
                 const payload = props?.payload as { pos?: number } | undefined;
                 const formatted = Number(value).toLocaleString("pt-PT", { maximumFractionDigits: 2 });
                 if (payload?.pos !== undefined) {
                   return [`${formatted} (#${payload.pos})`, valueLabel];
                 }
                 return [formatted, valueLabel];
-              }}
+              }) as any}
               labelFormatter={(label) => `Época: ${label}`}
             />
             <Line type="monotone" dataKey="value" stroke="#a78bfa" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
