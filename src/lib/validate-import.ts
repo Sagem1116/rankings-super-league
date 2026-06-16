@@ -140,6 +140,23 @@ export function validateRawSheets(raw: RawSheets, epoca: string, fileName: strin
     });
   }
 
+  // 7. Super_League (opcional)
+  if (raw.Super_League && raw.Super_League.length > 0) {
+    raw.Super_League.forEach((r: any, i: number) => {
+      const missing: string[] = [];
+      if (isEmpty(r.Equipa)) missing.push("Equipa");
+      if (isEmpty(r.Pos)) missing.push("Pos");
+      if (missing.length) {
+        issues.push({
+          level: "warning",
+          sheet: "Super_League",
+          row: i + 2,
+          message: `Linha ${i + 2} — campos em falta: ${missing.join(", ")} (${r.Equipa ?? "?"})`,
+        });
+      }
+    });
+  }
+
   return { epoca, fileName, issues };
 }
 
