@@ -9,10 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TimelineRouteImport } from './routes/timeline'
 import { Route as ScoutingRouteImport } from './routes/scouting'
 import { Route as MapaMundoRouteImport } from './routes/mapa-mundo'
-import { Route as HallOfFameRouteImport } from './routes/hall-of-fame'
 import { Route as H2hRouteImport } from './routes/h2h'
 import { Route as DominioRouteImport } from './routes/dominio'
 import { Route as IndexRouteImport } from './routes/index'
@@ -24,11 +22,6 @@ import { Route as PerfilPaisNomeRouteImport } from './routes/perfil.pais.$nome'
 import { Route as PerfilJogadorNomeRouteImport } from './routes/perfil.jogador.$nome'
 import { Route as PerfilClubeNomeRouteImport } from './routes/perfil.clube.$nome'
 
-const TimelineRoute = TimelineRouteImport.update({
-  id: '/timeline',
-  path: '/timeline',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ScoutingRoute = ScoutingRouteImport.update({
   id: '/scouting',
   path: '/scouting',
@@ -37,11 +30,6 @@ const ScoutingRoute = ScoutingRouteImport.update({
 const MapaMundoRoute = MapaMundoRouteImport.update({
   id: '/mapa-mundo',
   path: '/mapa-mundo',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HallOfFameRoute = HallOfFameRouteImport.update({
-  id: '/hall-of-fame',
-  path: '/hall-of-fame',
   getParentRoute: () => rootRouteImport,
 } as any)
 const H2hRoute = H2hRouteImport.update({
@@ -99,10 +87,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dominio': typeof DominioRoute
   '/h2h': typeof H2hRoute
-  '/hall-of-fame': typeof HallOfFameRoute
   '/mapa-mundo': typeof MapaMundoRoute
   '/scouting': typeof ScoutingRoute
-  '/timeline': typeof TimelineRoute
   '/comparador/clubes': typeof ComparadorClubesRoute
   '/dashboard/$key': typeof DashboardKeyRoute
   '/tabela/$key': typeof TabelaKeyRoute
@@ -115,10 +101,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dominio': typeof DominioRoute
   '/h2h': typeof H2hRoute
-  '/hall-of-fame': typeof HallOfFameRoute
   '/mapa-mundo': typeof MapaMundoRoute
   '/scouting': typeof ScoutingRoute
-  '/timeline': typeof TimelineRoute
   '/comparador/clubes': typeof ComparadorClubesRoute
   '/dashboard/$key': typeof DashboardKeyRoute
   '/tabela/$key': typeof TabelaKeyRoute
@@ -132,10 +116,8 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dominio': typeof DominioRoute
   '/h2h': typeof H2hRoute
-  '/hall-of-fame': typeof HallOfFameRoute
   '/mapa-mundo': typeof MapaMundoRoute
   '/scouting': typeof ScoutingRoute
-  '/timeline': typeof TimelineRoute
   '/comparador/clubes': typeof ComparadorClubesRoute
   '/dashboard/$key': typeof DashboardKeyRoute
   '/tabela/$key': typeof TabelaKeyRoute
@@ -150,10 +132,8 @@ export interface FileRouteTypes {
     | '/'
     | '/dominio'
     | '/h2h'
-    | '/hall-of-fame'
     | '/mapa-mundo'
     | '/scouting'
-    | '/timeline'
     | '/comparador/clubes'
     | '/dashboard/$key'
     | '/tabela/$key'
@@ -166,10 +146,8 @@ export interface FileRouteTypes {
     | '/'
     | '/dominio'
     | '/h2h'
-    | '/hall-of-fame'
     | '/mapa-mundo'
     | '/scouting'
-    | '/timeline'
     | '/comparador/clubes'
     | '/dashboard/$key'
     | '/tabela/$key'
@@ -182,10 +160,8 @@ export interface FileRouteTypes {
     | '/'
     | '/dominio'
     | '/h2h'
-    | '/hall-of-fame'
     | '/mapa-mundo'
     | '/scouting'
-    | '/timeline'
     | '/comparador/clubes'
     | '/dashboard/$key'
     | '/tabela/$key'
@@ -199,10 +175,8 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DominioRoute: typeof DominioRoute
   H2hRoute: typeof H2hRoute
-  HallOfFameRoute: typeof HallOfFameRoute
   MapaMundoRoute: typeof MapaMundoRoute
   ScoutingRoute: typeof ScoutingRoute
-  TimelineRoute: typeof TimelineRoute
   ComparadorClubesRoute: typeof ComparadorClubesRoute
   DashboardKeyRoute: typeof DashboardKeyRoute
   TabelaKeyRoute: typeof TabelaKeyRoute
@@ -214,13 +188,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/timeline': {
-      id: '/timeline'
-      path: '/timeline'
-      fullPath: '/timeline'
-      preLoaderRoute: typeof TimelineRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/scouting': {
       id: '/scouting'
       path: '/scouting'
@@ -233,13 +200,6 @@ declare module '@tanstack/react-router' {
       path: '/mapa-mundo'
       fullPath: '/mapa-mundo'
       preLoaderRoute: typeof MapaMundoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/hall-of-fame': {
-      id: '/hall-of-fame'
-      path: '/hall-of-fame'
-      fullPath: '/hall-of-fame'
-      preLoaderRoute: typeof HallOfFameRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/h2h': {
@@ -319,10 +279,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DominioRoute: DominioRoute,
   H2hRoute: H2hRoute,
-  HallOfFameRoute: HallOfFameRoute,
   MapaMundoRoute: MapaMundoRoute,
   ScoutingRoute: ScoutingRoute,
-  TimelineRoute: TimelineRoute,
   ComparadorClubesRoute: ComparadorClubesRoute,
   DashboardKeyRoute: DashboardKeyRoute,
   TabelaKeyRoute: TabelaKeyRoute,

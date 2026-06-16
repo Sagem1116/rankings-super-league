@@ -36,19 +36,9 @@ export type PageCategory =
   | "Golos"
   | "Rankings Especiais"
   | "Divisões"
-  | "Competições"
   | "Dashboards"
   | "Scouting"
   | "Administração";
-
-export interface SuperLeagueRow {
-  Epoca?: string | number;
-  Equipa: string;
-  Treinador?: string;
-  Pos: number;
-  Inf?: string;
-  Pts?: number;
-}
 
 export interface PageMeta {
   key: string;
@@ -67,7 +57,6 @@ export interface RawSheets {
   Treinadores: any[];
   Jogadores: any[];
   Pesos_Fixos: any[];
-  Super_League?: any[];
 }
 
 export interface SeasonData extends RawSheets {

@@ -27,19 +27,13 @@ const hasKey = (row: any, ...keys: string[]) => keys.some((k) => !isEmpty(row?.[
 export function validateRawSheets(raw: RawSheets, epoca: string, fileName: string): ImportValidation {
   const issues: ImportIssue[] = [];
 
-  // Se for ficheiro dedicado à Super League (só tem essa folha), validamos só isso.
-  const onlySL = (!raw.Ranking || raw.Ranking.length === 0)
-    && (raw.Super_League && raw.Super_League.length > 0);
-
-  if (!onlySL) {
-    // 1. Folhas em falta / vazias (modo normal)
-    for (const s of REQUIRED_SHEETS) {
-      const rows = (raw as any)[s];
-      if (!rows) {
-        issues.push({ level: "error", sheet: s, message: `Folha "${s}" não existe no ficheiro.` });
-      } else if (!Array.isArray(rows) || rows.length === 0) {
-        issues.push({ level: "warning", sheet: s, message: `Folha "${s}" está vazia.` });
-      }
+  // 1. Folhas em falta / vazias
+  for (const s of REQUIRED_SHEETS) {
+    const rows = (raw as any)[s];
+    if (!rows) {
+      issues.push({ level: "error", sheet: s, message: `Folha "${s}" não existe no ficheiro.` });
+    } else if (!Array.isArray(rows) || rows.length === 0) {
+      issues.push({ level: "warning", sheet: s, message: `Folha "${s}" está vazia.` });
     }
   }
 
@@ -137,23 +131,6 @@ export function validateRawSheets(raw: RawSheets, epoca: string, fileName: strin
       level: "warning",
       sheet: "Pesos_Fixos",
       message: `Divisão(ões) sem peso definido: ${divsSemPeso.sort((a, b) => a - b).join(", ")}`,
-    });
-  }
-
-  // 7. Super_League (opcional)
-  if (raw.Super_League && raw.Super_League.length > 0) {
-    raw.Super_League.forEach((r: any, i: number) => {
-      const missing: string[] = [];
-      if (isEmpty(r.Equipa)) missing.push("Equipa");
-      if (isEmpty(r.Pos)) missing.push("Pos");
-      if (missing.length) {
-        issues.push({
-          level: "warning",
-          sheet: "Super_League",
-          row: i + 2,
-          message: `Linha ${i + 2} — campos em falta: ${missing.join(", ")} (${r.Equipa ?? "?"})`,
-        });
-      }
     });
   }
 

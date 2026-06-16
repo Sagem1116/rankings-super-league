@@ -83,11 +83,6 @@ export interface CoachProfile {
   quaseSubida: Marker[];
   quaseTitulo: Marker[];
   despromovido: Marker[];
-  /** Passagens na Super League (se ficheiro presente) */
-  superLeague: Array<{ epoca: string; clube: string; pos: number; inf: string; pts: number }>;
-  campeaoSL: Marker[];
-  finalistaSL: Marker[];
-  podioSL: Marker[];
 }
 
 export function buildCoachProfile(seasons: NormSeason[], nome: string): CoachProfile | null {
@@ -95,41 +90,23 @@ export function buildCoachProfile(seasons: NormSeason[], nome: string): CoachPro
   const passagens: CoachProfile["passagens"] = [];
   const campeao: Marker[] = [], promovido: Marker[] = [], quaseSubida: Marker[] = [],
     quaseTitulo: Marker[] = [], despromovido: Marker[] = [];
-  const superLeague: CoachProfile["superLeague"] = [];
-  const campeaoSL: Marker[] = [], finalistaSL: Marker[] = [], podioSL: Marker[] = [];
   let nac = "";
   for (const s of sorted) {
     const t = s.treinadores.find((tt) => tt.Nome === nome);
-    if (t) {
-      nac = nac || t.Nac;
-      const r = s.rankings.find((x) => x.Equipa === t.Clube);
-      if (r) {
-        passagens.push({ epoca: s.epoca, clube: t.Clube, divisao: r.Divisao, pos: r.Pos, inf: r.Inf, pts: r.Pts });
-        const m: Marker = { epoca: s.epoca, divisao: r.Divisao, pos: r.Pos, clube: t.Clube };
-        if (isC(r.Inf)) campeao.push(m);
-        if (isP(r.Inf)) promovido.push(m);
-        if (isD(r.Inf)) despromovido.push(m);
-        if (r.Divisao > 1 && r.Pos >= 2 && r.Pos <= 5 && !isP(r.Inf)) quaseSubida.push(m);
-        if (r.Divisao === 1 && r.Pos <= 2 && !isC(r.Inf)) quaseTitulo.push(m);
-      }
-    }
-    // Super League — procurar por treinador OU pelo clube treinado nesta época
-    if (s.superLeague && s.superLeague.length) {
-      const clubeEpoca = t?.Clube;
-      for (const sl of s.superLeague) {
-        const match = (sl.Treinador && sl.Treinador === nome) || (clubeEpoca && sl.Equipa === clubeEpoca);
-        if (!match) continue;
-        superLeague.push({ epoca: s.epoca, clube: sl.Equipa, pos: sl.Pos, inf: sl.Inf, pts: sl.Pts });
-        const m: Marker = { epoca: s.epoca, divisao: 0, pos: sl.Pos, clube: sl.Equipa };
-        if (isC(sl.Inf) || sl.Pos === 1) campeaoSL.push(m);
-        if (sl.Pos === 2) finalistaSL.push(m);
-        if (sl.Pos > 0 && sl.Pos <= 3) podioSL.push(m);
-      }
-    }
+    if (!t) continue;
+    nac = nac || t.Nac;
+    const r = s.rankings.find((x) => x.Equipa === t.Clube);
+    if (!r) continue;
+    passagens.push({ epoca: s.epoca, clube: t.Clube, divisao: r.Divisao, pos: r.Pos, inf: r.Inf, pts: r.Pts });
+    const m: Marker = { epoca: s.epoca, divisao: r.Divisao, pos: r.Pos, clube: t.Clube };
+    if (isC(r.Inf)) campeao.push(m);
+    if (isP(r.Inf)) promovido.push(m);
+    if (isD(r.Inf)) despromovido.push(m);
+    if (r.Divisao > 1 && r.Pos >= 2 && r.Pos <= 5 && !isP(r.Inf)) quaseSubida.push(m);
+    if (r.Divisao === 1 && r.Pos <= 2 && !isC(r.Inf)) quaseTitulo.push(m);
   }
-  if (!passagens.length && !superLeague.length) return null;
-  return { nome, nac, passagens, campeao, promovido, quaseSubida, quaseTitulo, despromovido,
-    superLeague, campeaoSL, finalistaSL, podioSL };
+  if (!passagens.length) return null;
+  return { nome, nac, passagens, campeao, promovido, quaseSubida, quaseTitulo, despromovido };
 }
 
 export interface PlayerProfile {

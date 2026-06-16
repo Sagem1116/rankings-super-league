@@ -130,35 +130,3 @@ describe("Posições acumuladas — soma integral de todas as épocas", () => {
     }
   });
 });
-
-describe("Super League — agregação de honras", () => {
-  function mkSeasonSL(epoca: string, sl: Array<{ Equipa: string; Treinador?: string; Pos: number; Inf?: string; Pts?: number }>): NormSeason {
-    const base = mkSeason(epoca, { Alfa: 50, Bravo: 40 });
-    return { ...base, superLeague: sl.map((x) => ({ Equipa: x.Equipa, Treinador: x.Treinador || "", Pos: x.Pos, Inf: x.Inf || "", Pts: x.Pts || 0 })) };
-  }
-
-  it("produz tabela Super_League_Campeoes a contar campeões/finalistas/pódio", () => {
-    const seasons: NormSeason[] = [
-      mkSeasonSL("2022", [{ Equipa: "Alfa", Treinador: "Coach Alfa", Pos: 1, Inf: "C" }, { Equipa: "Bravo", Treinador: "Coach Bravo", Pos: 2 }, { Equipa: "Charlie", Treinador: "Coach C", Pos: 3 }]),
-      mkSeasonSL("2023", [{ Equipa: "Bravo", Treinador: "Coach Bravo", Pos: 1, Inf: "C" }, { Equipa: "Alfa", Treinador: "Coach Alfa", Pos: 2 }]),
-      mkSeasonSL("2024", [{ Equipa: "Alfa", Treinador: "Coach Alfa", Pos: 1, Inf: "C" }]),
-    ];
-    const all = computeAll(seasons, MODO);
-    expect(all.Super_League_Campeoes).toBeTruthy();
-    const alfa = all.Super_League_Campeoes.rows.find((r: any) => r.Equipa === "Alfa")!;
-    expect(alfa.Campeao).toBe(2);
-    expect(alfa.Final).toBe(1);
-    expect(alfa.Podio).toBe(3);
-
-    const coachAlfa = all.Super_League_Treinadores.rows.find((r: any) => r.Treinador === "Coach Alfa")!;
-    expect(coachAlfa.Campeao).toBe(2);
-    expect(coachAlfa.Final).toBe(1);
-  });
-
-  it("não cria tabelas Super_League quando nenhuma época tem dados", () => {
-    const seasons: NormSeason[] = [mkSeason("2020", { Alfa: 30 })];
-    const all = computeAll(seasons, MODO);
-    expect(all.Super_League_Campeoes).toBeUndefined();
-    expect(all.Super_League_Treinadores).toBeUndefined();
-  });
-});
