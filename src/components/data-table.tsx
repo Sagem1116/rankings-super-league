@@ -288,7 +288,7 @@ const purpleLight = hexToRgb('#c4b5fd');
             </tr>
           </thead>
           <tbody>
-            {pageRows.map((r, i) => {
+            {pageRows.map((r: RankingRow, i: number) => {
               const rank = (limit ? 0 : (page - 1) * PAGE_SIZE) + i + 1;
               return (
                 <tr key={i} className={`transition-colors duration-200 hover:bg-violet-500/10 ${i % 2 === 0 ? "bg-slate-950/70" : "bg-slate-950/30"}`}>
