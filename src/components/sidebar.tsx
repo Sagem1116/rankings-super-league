@@ -29,7 +29,8 @@ const CAT_ICON: Record<PageCategory, any> = {
 
 const QUICK_LINKS = [
   { label: "Dashboard Clubes", icon: Trophy, to: "/dashboard/Dashboard_Clubes" },
-  { label: "Dashboard Jogadores", icon: User2, to: "/dashboard/Dashboard_Jogadores" },
+  { label: "Hall of Fame", icon: Award, to: "/hall-of-fame" },
+  { label: "Timeline", icon: Hash, to: "/timeline" },
   { label: "Scouting", icon: Search, to: "/scouting" },
   { label: "Mapa Mundo", icon: Globe, to: "/dashboard/Mapa_Mundo" },
 ];
