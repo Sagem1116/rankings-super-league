@@ -83,6 +83,11 @@ export interface CoachProfile {
   quaseSubida: Marker[];
   quaseTitulo: Marker[];
   despromovido: Marker[];
+  /** Passagens na Super League (se ficheiro presente) */
+  superLeague: Array<{ epoca: string; clube: string; pos: number; inf: string; pts: number }>;
+  campeaoSL: Marker[];
+  finalistaSL: Marker[];
+  podioSL: Marker[];
 }
 
 export function buildCoachProfile(seasons: NormSeason[], nome: string): CoachProfile | null {
