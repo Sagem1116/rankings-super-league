@@ -1,22 +1,26 @@
 import { useRef, useState } from "react";
-import { Upload, Loader2, FileSpreadsheet, Download, Trash2, History, AlertTriangle, XCircle, CheckCircle2, ChevronDown, ChevronRight } from "lucide-react";
+import { Upload, Loader2, FileSpreadsheet, Download, Trash2, History, AlertTriangle, XCircle, CheckCircle2, ChevronDown, ChevronRight, FileJson, Upload as UploadIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useFMStore } from "@/lib/store";
 import { parseWorkbook } from "@/lib/parse-excel";
 import { computeAll, normalizeSeason } from "@/lib/calc/engine";
 import { exportAllToExcel } from "@/lib/export-excel";
 import { validateRawSheets, summarize, type ImportValidation } from "@/lib/validate-import";
+import { buildExportPayload, downloadJSON, parseImportPayload } from "@/lib/json-io";
+
 
 export function UploadPanel() {
   const fileRef = useRef<HTMLInputElement>(null);
+  const jsonRef = useRef<HTMLInputElement>(null);
   const [files, setFiles] = useState<{ file: File; epoca: string }[]>([]);
   const [epoca, setEpoca] = useState(String(new Date().getFullYear()));
-  const { modoAtivo, setModo, isProcessing, setProcessing, setSeasonsAndResults, resultados, seasons, reset } =
+  const { modoAtivo, setModo, isProcessing, setProcessing, setSeasonsAndResults, resultados, seasons, ultimaEpoca, reset } =
     useFMStore();
   const [drag, setDrag] = useState(false);
   const [acumular, setAcumular] = useState(true);
   const [validations, setValidations] = useState<ImportValidation[]>([]);
   const [openValidation, setOpenValidation] = useState<string | null>(null);
+
 
   const guessSeasonFromFilename = (name: string) => {
     const match = name.match(/\b(19|20)\d{2}\b/);
@@ -92,6 +96,31 @@ export function UploadPanel() {
       toast.error("Erro a exportar: " + (e?.message ?? e));
     }
   };
+
+  const exportJSON = () => {
+    if (!Object.keys(resultados).length) return toast.error("Nada para exportar. Processa primeiro.");
+    try {
+      const payload = buildExportPayload(seasons, resultados, ultimaEpoca, modoAtivo);
+      const stamp = new Date().toISOString().slice(0, 10);
+      downloadJSON(payload, `fmdatalab-rankings-${stamp}.json`);
+      toast.success(`JSON exportado (${seasons.length} época(s), ${Object.keys(resultados).length} tabela(s)).`);
+    } catch (e: any) {
+      toast.error("Erro a exportar JSON: " + (e?.message ?? e));
+    }
+  };
+
+  const importJSON = async (file: File) => {
+    try {
+      const text = await file.text();
+      const { seasons: s, resultados: r, ultimaEpoca: ep, modoAtivo: m } = parseImportPayload(text);
+      if (m) setModo(m);
+      setSeasonsAndResults(s, r, ep);
+      toast.success(`JSON importado: ${s.length} época(s), ${Object.keys(r).length} tabela(s).`);
+    } catch (e: any) {
+      toast.error("Erro a importar JSON: " + (e?.message ?? e));
+    }
+  };
+
 
   const epocasGuardadas = seasons.map((s) => s.epoca).sort();
 
@@ -176,7 +205,7 @@ export function UploadPanel() {
         </div>
       )}
 
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <button
           onClick={process}
           disabled={isProcessing}
@@ -189,8 +218,34 @@ export function UploadPanel() {
           onClick={exportAll}
           className="inline-flex items-center gap-2 rounded-md border border-violet-400 px-4 py-2 text-sm text-violet-200 hover:bg-violet-400/10"
         >
-          <Download className="h-4 w-4" /> Exportar tudo para Excel
+          <Download className="h-4 w-4" /> Exportar Excel
         </button>
+        <button
+          onClick={exportJSON}
+          className="inline-flex items-center gap-2 rounded-md border border-violet-400 px-4 py-2 text-sm text-violet-200 hover:bg-violet-400/10"
+          title="Exportar todos os rankings como JSON (use noutras apps)"
+        >
+          <FileJson className="h-4 w-4" /> Exportar JSON
+        </button>
+        <button
+          onClick={() => jsonRef.current?.click()}
+          className="inline-flex items-center gap-2 rounded-md border border-violet-400 px-4 py-2 text-sm text-violet-200 hover:bg-violet-400/10"
+          title="Importar rankings previamente exportados como JSON"
+        >
+          <UploadIcon className="h-4 w-4" /> Importar JSON
+        </button>
+        <input
+          ref={jsonRef}
+          type="file"
+          accept=".json,application/json"
+          hidden
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) importJSON(f);
+            if (jsonRef.current) jsonRef.current.value = "";
+          }}
+        />
+
         {validations.length > 0 && (
           <button
             onClick={() => setValidations([])}

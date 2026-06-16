@@ -2,6 +2,8 @@
 import { Link } from "@tanstack/react-router";
 import { Columns3, Eye, EyeOff, ArrowUp, ArrowDown, RotateCcw } from "lucide-react";
 import type { RankingTable, RankingRow } from "@/lib/types";
+import { filterAndSortRows } from "@/lib/table-utils";
+
 
 const ENTITY_ROUTES: Record<string, "/perfil/clube/$nome" | "/perfil/treinador/$nome" | "/perfil/jogador/$nome" | "/perfil/pais/$nome"> = {
   Equipa: "/perfil/clube/$nome",
@@ -192,25 +194,11 @@ const purpleLight = hexToRgb('#c4b5fd');
     });
   }
 
-  const filtered = useMemo(() => {
-    const rows = table.rows.filter((r) =>
-      visibleCols.every((c) => {
-        const f = filters[c.key]?.toLowerCase().trim();
-        if (!f) return true;
-        return String(r[c.key] ?? "").toLowerCase().includes(f);
-      }),
-    );
-    if (sortKey) {
-      rows.sort((a, b) => {
-        const av = a[sortKey], bv = b[sortKey];
-        if (typeof av === "number" && typeof bv === "number") return sortDir === "asc" ? av - bv : bv - av;
-        return sortDir === "asc"
-          ? String(av ?? "").localeCompare(String(bv ?? ""))
-          : String(bv ?? "").localeCompare(String(av ?? ""));
-      });
-    }
-    return rows;
-  }, [table.rows, sortKey, sortDir, filters, visibleCols]);
+  const filtered = useMemo(
+    () => filterAndSortRows(table.rows, filters, visibleCols, sortKey, sortDir),
+    [table.rows, sortKey, sortDir, filters, visibleCols],
+  );
+
 
   const limited = limit ? filtered.slice(0, limit) : filtered;
   const totalPages = Math.max(1, Math.ceil(limited.length / PAGE_SIZE));
@@ -300,7 +288,7 @@ const purpleLight = hexToRgb('#c4b5fd');
             </tr>
           </thead>
           <tbody>
-            {pageRows.map((r, i) => {
+            {pageRows.map((r: RankingRow, i: number) => {
               const rank = (limit ? 0 : (page - 1) * PAGE_SIZE) + i + 1;
               return (
                 <tr key={i} className={`transition-colors duration-200 hover:bg-violet-500/10 ${i % 2 === 0 ? "bg-slate-950/70" : "bg-slate-950/30"}`}>
