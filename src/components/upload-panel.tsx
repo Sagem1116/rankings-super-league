@@ -154,6 +154,7 @@ export function UploadPanel() {
       >
         <Upload className="h-8 w-8 text-violet-300" />
         <p className="text-sm">Arrasta ficheiros .xlsx ou clica para escolher</p>
+        <p className="text-xs text-muted-foreground">Folhas: Ranking, Equipas_Pais, Treinadores, Jogadores, Pesos_Fixos · folha opcional <span className="text-amber-300">Super_League</span> (Equipa, Treinador, Pos, Inf, Pts) — ou ficheiro dedicado SuperLeague_*.xlsx</p>
         <input ref={fileRef} type="file" accept=".xlsx" multiple hidden
           onChange={(e) => addFiles(e.target.files)} />
       </div>

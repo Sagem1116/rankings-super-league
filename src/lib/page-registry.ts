@@ -151,6 +151,14 @@ export const PAGES: PageMeta[] = [
   { key: "Mapa_Mundo", title: "Mapa Mundo", category: "Dashboards", mode: "always", kind: "dashboard",
     description: "Distribuição geográfica de top clubes e jogadores por país." },
 
+  // Competições
+  { key: "Super_League_Campeoes", title: "Super League — Histórico", category: "Competições", mode: "always", kind: "table",
+    description: "Campeões, finalistas e pódios da Super League por clube." },
+  { key: "Super_League_Treinadores", title: "Super League — Treinadores", category: "Competições", mode: "always", kind: "table",
+    description: "Treinadores com mais títulos e pódios na Super League." },
+  { key: "Super_League_Honras", title: "Super League — Honras por Época", category: "Competições", mode: "always", kind: "table",
+    description: "Lista cronológica de todas as posições na Super League." },
+
   // Scouting
   { key: "scouting", title: "Scouting", category: "Scouting", mode: "always", kind: "scouting",
     description: "Perfil individual e comparador multi-entidade." },
@@ -167,6 +175,7 @@ export const CATEGORIES_ORDER: PageMeta["category"][] = [
   "Golos",
   "Rankings Especiais",
   "Divisões",
+  "Competições",
   "Dashboards",
   "Scouting",
 ];

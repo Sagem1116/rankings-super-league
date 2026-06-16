@@ -130,12 +130,12 @@ function RootComponent() {
 
 const SITE_NAV = [
   { label: "Dashboard", to: "/dashboard/Dashboard_Clubes" },
+  { label: "Hall of Fame", to: "/hall-of-fame" },
+  { label: "Timeline", to: "/timeline" },
   { label: "Comparador", to: "/comparador/clubes" },
   { label: "Head-to-Head", to: "/h2h" },
   { label: "Domínio", to: "/dominio" },
   { label: "Scouting", to: "/scouting" },
-  { label: "Role Scores", to: "/dashboard/Dashboard_Jogadores" },
-  { label: "Staff Scores", to: "/dashboard/Dashboard_Treinadores" },
 ];
 
 function AppShell() {
