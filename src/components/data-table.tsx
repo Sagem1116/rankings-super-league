@@ -192,25 +192,11 @@ const purpleLight = hexToRgb('#c4b5fd');
     });
   }
 
-  const filtered = useMemo(() => {
-    const rows = table.rows.filter((r) =>
-      visibleCols.every((c) => {
-        const f = filters[c.key]?.toLowerCase().trim();
-        if (!f) return true;
-        return String(r[c.key] ?? "").toLowerCase().includes(f);
-      }),
-    );
-    if (sortKey) {
-      rows.sort((a, b) => {
-        const av = a[sortKey], bv = b[sortKey];
-        if (typeof av === "number" && typeof bv === "number") return sortDir === "asc" ? av - bv : bv - av;
-        return sortDir === "asc"
-          ? String(av ?? "").localeCompare(String(bv ?? ""))
-          : String(bv ?? "").localeCompare(String(av ?? ""));
-      });
-    }
-    return rows;
-  }, [table.rows, sortKey, sortDir, filters, visibleCols]);
+  const filtered = useMemo(
+    () => filterAndSortRows(table.rows, filters, visibleCols, sortKey, sortDir),
+    [table.rows, sortKey, sortDir, filters, visibleCols],
+  );
+
 
   const limited = limit ? filtered.slice(0, limit) : filtered;
   const totalPages = Math.max(1, Math.ceil(limited.length / PAGE_SIZE));
