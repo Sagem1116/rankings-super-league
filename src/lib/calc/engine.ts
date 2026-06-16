@@ -88,6 +88,7 @@ export interface NormSeason {
     ClubeUID?: string;
   }>;
   pesosFixos: Map<number, number>;
+  superLeague?: Array<{ Equipa: string; Treinador: string; Pos: number; Inf: string; Pts: number }>;
 }
 
 export function normalizeSeason(raw: RawSheets, epoca: string): NormSeason {
