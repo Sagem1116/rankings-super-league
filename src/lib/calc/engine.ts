@@ -1496,5 +1496,94 @@ export function computeAll(
     }
   }
 
+  /* ============================ Super League ============================== */
+  {
+    // Histórico de campeões / pódio da Super League
+    const winsByTeam = new Map<string, { Equipa: string; Pais: string; Campeao: number; Final: number; Podio: number; Apar: number; Pts: number }>();
+    const winsByCoach = new Map<string, { Treinador: string; Campeao: number; Final: number; Podio: number; Apar: number; Pts: number }>();
+    const honras: Array<Record<string, any>> = [];
+    let hasAny = false;
+    for (const s of seasons) {
+      if (!s.superLeague || s.superLeague.length === 0) continue;
+      hasAny = true;
+      for (const r of s.superLeague) {
+        const c = isC(r.Inf) || r.Pos === 1;
+        const f = r.Pos === 2;
+        const p3 = r.Pos > 0 && r.Pos <= 3;
+        const pais = s.equipasPais.get(r.Equipa) || "";
+
+        const wt = winsByTeam.get(r.Equipa) || { Equipa: r.Equipa, Pais: pais, Campeao: 0, Final: 0, Podio: 0, Apar: 0, Pts: 0 };
+        wt.Apar++; wt.Pts += r.Pts || 0;
+        if (c) wt.Campeao++; if (f) wt.Final++; if (p3) wt.Podio++;
+        if (!wt.Pais) wt.Pais = pais;
+        winsByTeam.set(r.Equipa, wt);
+
+        if (r.Treinador) {
+          const wc = winsByCoach.get(r.Treinador) || { Treinador: r.Treinador, Campeao: 0, Final: 0, Podio: 0, Apar: 0, Pts: 0 };
+          wc.Apar++; wc.Pts += r.Pts || 0;
+          if (c) wc.Campeao++; if (f) wc.Final++; if (p3) wc.Podio++;
+          winsByCoach.set(r.Treinador, wc);
+        }
+
+        honras.push({
+          Epoca: s.epoca, Equipa: r.Equipa, Treinador: r.Treinador || "—",
+          Pos: r.Pos, Inf: r.Inf, Pts: r.Pts || 0,
+          _campeao: c, _final: f, _podio: p3,
+        });
+      }
+    }
+    if (hasAny) {
+      out.Super_League_Campeoes = {
+        key: "Super_League_Campeoes",
+        title: "Super League — Histórico",
+        category: "Competições",
+        description: "Histórico de Campeões, Finalistas e Pódio da Super League por clube.",
+        columns: [
+          { key: "Equipa", label: "Equipa", type: "text" },
+          { key: "Pais", label: "País", type: "text" },
+          { key: "Campeao", label: "🏆 Campeão", type: "int" },
+          { key: "Final", label: "🥈 Finalista", type: "int" },
+          { key: "Podio", label: "🥉 Pódio", type: "int" },
+          { key: "Apar", label: "Aparições", type: "int" },
+          { key: "Pts", label: "Pts Totais", type: "num", decimals: 0 },
+        ],
+        rows: [...winsByTeam.values()].sort((a, b) => b.Campeao - a.Campeao || b.Final - a.Final || b.Podio - a.Podio),
+        sortKey: "Campeao", sortDir: "desc", entityKey: "Equipa",
+      };
+      out.Super_League_Treinadores = {
+        key: "Super_League_Treinadores",
+        title: "Super League — Treinadores",
+        category: "Competições",
+        description: "Treinadores na Super League: títulos, finais e pódios acumulados.",
+        columns: [
+          { key: "Treinador", label: "Treinador", type: "text" },
+          { key: "Campeao", label: "🏆 Campeão", type: "int" },
+          { key: "Final", label: "🥈 Finalista", type: "int" },
+          { key: "Podio", label: "🥉 Pódio", type: "int" },
+          { key: "Apar", label: "Aparições", type: "int" },
+          { key: "Pts", label: "Pts Totais", type: "num", decimals: 0 },
+        ],
+        rows: [...winsByCoach.values()].sort((a, b) => b.Campeao - a.Campeao || b.Final - a.Final),
+        sortKey: "Campeao", sortDir: "desc", entityKey: "Treinador",
+      };
+      out.Super_League_Honras = {
+        key: "Super_League_Honras",
+        title: "Super League — Honras por Época",
+        category: "Competições",
+        description: "Lista cronológica de todas as posições registadas na Super League.",
+        columns: [
+          { key: "Epoca", label: "Época", type: "text" },
+          { key: "Pos", label: "Pos", type: "int" },
+          { key: "Equipa", label: "Equipa", type: "text" },
+          { key: "Treinador", label: "Treinador", type: "text" },
+          { key: "Inf", label: "Inf", type: "text" },
+          { key: "Pts", label: "Pts", type: "num", decimals: 0 },
+        ],
+        rows: honras.sort((a, b) => String(b.Epoca).localeCompare(String(a.Epoca)) || a.Pos - b.Pos),
+        sortKey: "Epoca", sortDir: "desc", entityKey: "Equipa",
+      };
+    }
+  }
+
   return out;
 }
