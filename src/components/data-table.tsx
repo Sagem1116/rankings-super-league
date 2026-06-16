@@ -2,6 +2,8 @@
 import { Link } from "@tanstack/react-router";
 import { Columns3, Eye, EyeOff, ArrowUp, ArrowDown, RotateCcw } from "lucide-react";
 import type { RankingTable, RankingRow } from "@/lib/types";
+import { filterAndSortRows } from "@/lib/table-utils";
+
 
 const ENTITY_ROUTES: Record<string, "/perfil/clube/$nome" | "/perfil/treinador/$nome" | "/perfil/jogador/$nome" | "/perfil/pais/$nome"> = {
   Equipa: "/perfil/clube/$nome",
