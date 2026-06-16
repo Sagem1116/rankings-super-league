@@ -137,7 +137,15 @@ export function normalizeSeason(raw: RawSheets, epoca: string): NormSeason {
     if (d) pesosFixos.set(d, p);
   }
 
-  return { epoca, rankings, equipasPais, treinadores, jogadores, pesosFixos };
+  const superLeague = (raw.Super_League || []).map((r: any) => ({
+    Equipa: txt(r.Equipa),
+    Treinador: txt(r.Treinador ?? r.Nome ?? ""),
+    Pos: int(r.Pos),
+    Inf: txt(r.Inf),
+    Pts: num(r.Pts),
+  })).filter((r: any) => r.Equipa);
+
+  return { epoca, rankings, equipasPais, treinadores, jogadores, pesosFixos, superLeague };
 }
 
 /* -------------------- build all tables given seasons --------------------- */
