@@ -205,7 +205,7 @@ export function UploadPanel() {
         </div>
       )}
 
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <button
           onClick={process}
           disabled={isProcessing}
@@ -218,8 +218,34 @@ export function UploadPanel() {
           onClick={exportAll}
           className="inline-flex items-center gap-2 rounded-md border border-violet-400 px-4 py-2 text-sm text-violet-200 hover:bg-violet-400/10"
         >
-          <Download className="h-4 w-4" /> Exportar tudo para Excel
+          <Download className="h-4 w-4" /> Exportar Excel
         </button>
+        <button
+          onClick={exportJSON}
+          className="inline-flex items-center gap-2 rounded-md border border-violet-400 px-4 py-2 text-sm text-violet-200 hover:bg-violet-400/10"
+          title="Exportar todos os rankings como JSON (use noutras apps)"
+        >
+          <FileJson className="h-4 w-4" /> Exportar JSON
+        </button>
+        <button
+          onClick={() => jsonRef.current?.click()}
+          className="inline-flex items-center gap-2 rounded-md border border-violet-400 px-4 py-2 text-sm text-violet-200 hover:bg-violet-400/10"
+          title="Importar rankings previamente exportados como JSON"
+        >
+          <UploadIcon className="h-4 w-4" /> Importar JSON
+        </button>
+        <input
+          ref={jsonRef}
+          type="file"
+          accept=".json,application/json"
+          hidden
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) importJSON(f);
+            if (jsonRef.current) jsonRef.current.value = "";
+          }}
+        />
+
         {validations.length > 0 && (
           <button
             onClick={() => setValidations([])}
