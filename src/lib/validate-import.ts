@@ -27,13 +27,19 @@ const hasKey = (row: any, ...keys: string[]) => keys.some((k) => !isEmpty(row?.[
 export function validateRawSheets(raw: RawSheets, epoca: string, fileName: string): ImportValidation {
   const issues: ImportIssue[] = [];
 
-  // 1. Folhas em falta / vazias
-  for (const s of REQUIRED_SHEETS) {
-    const rows = (raw as any)[s];
-    if (!rows) {
-      issues.push({ level: "error", sheet: s, message: `Folha "${s}" não existe no ficheiro.` });
-    } else if (!Array.isArray(rows) || rows.length === 0) {
-      issues.push({ level: "warning", sheet: s, message: `Folha "${s}" está vazia.` });
+  // Se for ficheiro dedicado à Super League (só tem essa folha), validamos só isso.
+  const onlySL = (!raw.Ranking || raw.Ranking.length === 0)
+    && (raw.Super_League && raw.Super_League.length > 0);
+
+  if (!onlySL) {
+    // 1. Folhas em falta / vazias (modo normal)
+    for (const s of REQUIRED_SHEETS) {
+      const rows = (raw as any)[s];
+      if (!rows) {
+        issues.push({ level: "error", sheet: s, message: `Folha "${s}" não existe no ficheiro.` });
+      } else if (!Array.isArray(rows) || rows.length === 0) {
+        issues.push({ level: "warning", sheet: s, message: `Folha "${s}" está vazia.` });
+      }
     }
   }
 
