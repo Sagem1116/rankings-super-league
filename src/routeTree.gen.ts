@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ScoutingRouteImport } from './routes/scouting'
 import { Route as MapaMundoRouteImport } from './routes/mapa-mundo'
+import { Route as HallOfFameRouteImport } from './routes/hall-of-fame'
 import { Route as H2hRouteImport } from './routes/h2h'
 import { Route as DominioRouteImport } from './routes/dominio'
 import { Route as IndexRouteImport } from './routes/index'
@@ -30,6 +31,11 @@ const ScoutingRoute = ScoutingRouteImport.update({
 const MapaMundoRoute = MapaMundoRouteImport.update({
   id: '/mapa-mundo',
   path: '/mapa-mundo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HallOfFameRoute = HallOfFameRouteImport.update({
+  id: '/hall-of-fame',
+  path: '/hall-of-fame',
   getParentRoute: () => rootRouteImport,
 } as any)
 const H2hRoute = H2hRouteImport.update({
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dominio': typeof DominioRoute
   '/h2h': typeof H2hRoute
+  '/hall-of-fame': typeof HallOfFameRoute
   '/mapa-mundo': typeof MapaMundoRoute
   '/scouting': typeof ScoutingRoute
   '/comparador/clubes': typeof ComparadorClubesRoute
@@ -101,6 +108,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dominio': typeof DominioRoute
   '/h2h': typeof H2hRoute
+  '/hall-of-fame': typeof HallOfFameRoute
   '/mapa-mundo': typeof MapaMundoRoute
   '/scouting': typeof ScoutingRoute
   '/comparador/clubes': typeof ComparadorClubesRoute
@@ -116,6 +124,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dominio': typeof DominioRoute
   '/h2h': typeof H2hRoute
+  '/hall-of-fame': typeof HallOfFameRoute
   '/mapa-mundo': typeof MapaMundoRoute
   '/scouting': typeof ScoutingRoute
   '/comparador/clubes': typeof ComparadorClubesRoute
@@ -132,6 +141,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dominio'
     | '/h2h'
+    | '/hall-of-fame'
     | '/mapa-mundo'
     | '/scouting'
     | '/comparador/clubes'
@@ -146,6 +156,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dominio'
     | '/h2h'
+    | '/hall-of-fame'
     | '/mapa-mundo'
     | '/scouting'
     | '/comparador/clubes'
@@ -160,6 +171,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dominio'
     | '/h2h'
+    | '/hall-of-fame'
     | '/mapa-mundo'
     | '/scouting'
     | '/comparador/clubes'
@@ -175,6 +187,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DominioRoute: typeof DominioRoute
   H2hRoute: typeof H2hRoute
+  HallOfFameRoute: typeof HallOfFameRoute
   MapaMundoRoute: typeof MapaMundoRoute
   ScoutingRoute: typeof ScoutingRoute
   ComparadorClubesRoute: typeof ComparadorClubesRoute
@@ -200,6 +213,13 @@ declare module '@tanstack/react-router' {
       path: '/mapa-mundo'
       fullPath: '/mapa-mundo'
       preLoaderRoute: typeof MapaMundoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hall-of-fame': {
+      id: '/hall-of-fame'
+      path: '/hall-of-fame'
+      fullPath: '/hall-of-fame'
+      preLoaderRoute: typeof HallOfFameRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/h2h': {
@@ -279,6 +299,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DominioRoute: DominioRoute,
   H2hRoute: H2hRoute,
+  HallOfFameRoute: HallOfFameRoute,
   MapaMundoRoute: MapaMundoRoute,
   ScoutingRoute: ScoutingRoute,
   ComparadorClubesRoute: ComparadorClubesRoute,
