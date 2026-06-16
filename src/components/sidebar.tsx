@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { ChevronDown, Home, Search, Trophy, Globe, UserSquare2, User2, Goal, Sparkles, BarChart3, Layers, Hash } from "lucide-react";
+import { ChevronDown, Home, Search, Trophy, Globe, UserSquare2, User2, Goal, Sparkles, BarChart3, Layers, Hash, Award } from "lucide-react";
 import { CATEGORIES_ORDER, PAGES } from "@/lib/page-registry";
 import type { PageCategory } from "@/lib/types";
 import { useFMStore } from "@/lib/store";
@@ -15,11 +15,14 @@ const HIGHLIGHT_PAGES = new Set([
   "Posicoes_Treinador_Coef_Fixos",
   "Posicoes_Ranking_Treinador_Fixos",
   "Posicoes_Pontos_Totais_Fixos",
+  "Super_League_Campeoes",
+  "Hall_Of_Fame",
 ]);
 
 const CAT_ICON: Record<PageCategory, any> = {
   Clubes: Trophy, "Países": Globe, Treinadores: UserSquare2, Jogadores: User2,
   Golos: Goal, "Rankings Especiais": Sparkles, "Divisões": Layers,
+  "Competições": Award,
   Dashboards: BarChart3, Scouting: Search, "Administração": Home,
   "Posições Geral": Hash,
 };
