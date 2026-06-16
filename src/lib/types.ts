@@ -67,6 +67,7 @@ export interface RawSheets {
   Treinadores: any[];
   Jogadores: any[];
   Pesos_Fixos: any[];
+  Super_League?: any[];
 }
 
 export interface SeasonData extends RawSheets {
