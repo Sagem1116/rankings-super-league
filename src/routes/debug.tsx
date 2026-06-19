@@ -29,7 +29,7 @@ function bonusFor(inf: string, pos: number): number {
   return b;
 }
 
-type Tab = "pontos" | "clubes";
+type Tab = "pontos" | "clubes" | "treinadores";
 
 function DebugPage() {
   const { seasons } = useFMStore();
@@ -148,6 +148,77 @@ function DebugPage() {
     return { totalRanking, campeoes, promovidos, epocasComProblemas };
   }, [clubesRows]);
 
+  /* ---------------- DEBUG TREINADORES ---------------- */
+  const treinadoresRows = useMemo(() => {
+    const out: any[] = [];
+    const filteredSeasons = epocaSel === "__all"
+      ? sortedSeasons
+      : sortedSeasons.filter((s) => s.epoca === epocaSel);
+    for (const s of filteredSeasons) {
+      const last5Idx = last5.indexOf(s.epoca);
+      const coefWeight = last5Idx >= 0 ? COEF_WEIGHTS[last5Idx] : 0;
+      const trainerMap = trainersByEp.get(s.epoca) ?? new Map();
+      for (const r of s.rankings) {
+        const tr = trainerMap.get(r.Equipa);
+        if (!tr) continue; // só linhas que contribuem para rankings de treinadores
+        const wFixo = pesosFixos.get(r.Divisao) ?? 1;
+        const bonus = bonusFor(r.Inf, r.Pos);
+        const ptsFixos = +(r.Pts * wFixo).toFixed(2);
+        const baseCoef = r.Pts + bonus;
+        const baseCoefFixo = r.Pts * wFixo + bonus;
+        const contribCoef = +(baseCoef * coefWeight).toFixed(2);
+        const contribCoefFixo = +(baseCoefFixo * coefWeight).toFixed(2);
+        out.push({
+          Epoca: s.epoca,
+          Treinador: tr.nome,
+          Nac: tr.nac || "—",
+          Equipa: r.Equipa,
+          Div: r.Divisao,
+          Pos: r.Pos,
+          Inf: r.Inf || "",
+          Pts: r.Pts,
+          PesoFixo: wFixo,
+          Bonus: bonus,
+          // → Ranking_Treinador (Pts crus, somados ao Total)
+          R_Treinador: r.Pts,
+          // → Ranking_Treinador_Fixos (Pts × pesoFixo)
+          R_Treinador_Fixos: ptsFixos,
+          // → Treinador_Coef base (Pts + bónus) e contribuição (× peso temporal)
+          BaseCoef: +baseCoef.toFixed(2),
+          ContribCoef: contribCoef,
+          // → Treinador_Coef_Fixos base (Pts × peso + bónus) e contribuição
+          BaseCoefFixo: +baseCoefFixo.toFixed(2),
+          ContribCoefFixo: contribCoefFixo,
+          // → Ranking_Treinador_Pais / _Fixo (atribuído à nacionalidade)
+          R_TreinadorPais: r.Pts,
+          R_TreinadorPaisFixos: ptsFixos,
+          // títulos para Treinador_Campeoes / Play-Off
+          Campeao: isC(r.Inf) ? "✅" : "—",
+          Promovido: isP(r.Inf) ? "✅" : "—",
+          PesoTemporal: coefWeight,
+        });
+      }
+    }
+    const f = filtro.trim().toLowerCase();
+    if (!f) return out;
+    return out.filter((r) =>
+      String(r.Treinador).toLowerCase().includes(f) ||
+      String(r.Equipa).toLowerCase().includes(f) ||
+      String(r.Nac).toLowerCase().includes(f) ||
+      String(r.Epoca).toLowerCase().includes(f),
+    );
+  }, [sortedSeasons, epocaSel, last5, pesosFixos, trainersByEp, filtro]);
+
+  const treinadoresStats = useMemo(() => {
+    const treinadoresUnicos = new Set(treinadoresRows.map((r) => r.Treinador)).size;
+    const nacionalidades = new Set(treinadoresRows.map((r) => r.Nac).filter((n) => n && n !== "—")).size;
+    const totalRT = treinadoresRows.reduce((a, r) => a + (Number(r.R_Treinador) || 0), 0);
+    const totalRTF = treinadoresRows.reduce((a, r) => a + (Number(r.R_Treinador_Fixos) || 0), 0);
+    const totalCoef = treinadoresRows.reduce((a, r) => a + (Number(r.ContribCoef) || 0), 0);
+    const totalCoefFixo = treinadoresRows.reduce((a, r) => a + (Number(r.ContribCoefFixo) || 0), 0);
+    return { treinadoresUnicos, nacionalidades, totalRT, totalRTF, totalCoef, totalCoefFixo };
+  }, [treinadoresRows]);
+
   if (!seasons.length) {
     return (
       <div className="rounded-[2rem] glow-panel p-10 text-center">
@@ -179,6 +250,12 @@ function DebugPage() {
               className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${tab === "clubes" ? "bg-violet-500/30 text-white" : "text-slate-300 hover:text-white"}`}
             >
               Debug Clubes
+            </button>
+            <button
+              onClick={() => setTab("treinadores")}
+              className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${tab === "treinadores" ? "bg-violet-500/30 text-white" : "text-slate-300 hover:text-white"}`}
+            >
+              Debug Treinadores
             </button>
           </div>
 
@@ -279,6 +356,60 @@ function DebugPage() {
             ]}
             rows={clubesRows}
             emptyMessage="✅ Sem problemas: todos os clubes têm treinador associado."
+          />
+        </section>
+      )}
+
+      {tab === "treinadores" && (
+        <section className="space-y-3">
+          <div className="rounded-[1.5rem] glow-panel p-4 text-sm text-slate-300">
+            <p>
+              Cada linha mostra, para uma <strong>(época, treinador, clube)</strong>, exactamente
+              quanto essa linha contribui para cada ranking de treinadores:
+            </p>
+            <ul className="mt-2 list-disc pl-5 text-xs text-slate-400 space-y-1">
+              <li><span className="text-violet-200">R. Treinador</span> = Pts (somados ao Total do <em>Ranking Treinador</em>).</li>
+              <li><span className="text-violet-200">R. Treinador (Fixos)</span> = Pts × Peso Fixo.</li>
+              <li><span className="text-violet-200">Base Coef</span> = Pts + Bónus &nbsp;·&nbsp; <span className="text-violet-200">Contrib. Coef</span> = Base × Peso Temporal (apenas últimas 5 épocas; 0 fora).</li>
+              <li><span className="text-violet-200">Base Coef Fixo</span> = Pts × Peso Fixo + Bónus &nbsp;·&nbsp; <span className="text-violet-200">Contrib. Coef Fixos</span> = Base × Peso Temporal.</li>
+              <li><span className="text-violet-200">R. Treinador País</span> / <span className="text-violet-200">(Fixos)</span> — mesmos valores atribuídos à <em>Nacionalidade</em> do treinador.</li>
+              <li>Bónus: Campeão +10, Promovido +4, 2º–5º +3.</li>
+            </ul>
+            <div className="mt-3 grid grid-cols-2 gap-3 text-xs sm:grid-cols-3 lg:grid-cols-6">
+              <Stat label="Linhas" value={treinadoresRows.length} />
+              <Stat label="Treinadores únicos" value={treinadoresStats.treinadoresUnicos} />
+              <Stat label="Nacionalidades" value={treinadoresStats.nacionalidades} />
+              <Stat label="Σ R. Treinador" value={Math.round(treinadoresStats.totalRT)} />
+              <Stat label="Σ Coef (janela 5a)" value={Math.round(treinadoresStats.totalCoef)} />
+              <Stat label="Σ Coef Fixos (janela 5a)" value={Math.round(treinadoresStats.totalCoefFixo)} />
+            </div>
+          </div>
+          <DebugTable
+            columns={[
+              { key: "Epoca", label: "Época" },
+              { key: "Treinador", label: "Treinador" },
+              { key: "Nac", label: "Nac" },
+              { key: "Equipa", label: "Clube" },
+              { key: "Div", label: "Div", align: "right" },
+              { key: "Pos", label: "Pos", align: "right" },
+              { key: "Inf", label: "Inf" },
+              { key: "Pts", label: "Pts", align: "right" },
+              { key: "PesoFixo", label: "Peso Fixo", align: "right" },
+              { key: "Bonus", label: "Bónus", align: "right" },
+              { key: "R_Treinador", label: "→ R. Treinador", align: "right" },
+              { key: "R_Treinador_Fixos", label: "→ R. Treinador (Fixos)", align: "right" },
+              { key: "BaseCoef", label: "Base Coef", align: "right" },
+              { key: "PesoTemporal", label: "Peso Temp.", align: "right" },
+              { key: "ContribCoef", label: "→ Contrib. Coef", align: "right" },
+              { key: "BaseCoefFixo", label: "Base Coef Fixo", align: "right" },
+              { key: "ContribCoefFixo", label: "→ Contrib. Coef Fixos", align: "right" },
+              { key: "R_TreinadorPais", label: "→ R. Tr. País", align: "right" },
+              { key: "R_TreinadorPaisFixos", label: "→ R. Tr. País (Fixos)", align: "right" },
+              { key: "Campeao", label: "Campeão", align: "center" },
+              { key: "Promovido", label: "Promovido", align: "center" },
+            ]}
+            rows={treinadoresRows}
+            emptyMessage="Sem linhas com treinador associado."
           />
         </section>
       )}
