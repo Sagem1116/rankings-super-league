@@ -13,6 +13,7 @@ import { Route as ScoutingRouteImport } from './routes/scouting'
 import { Route as MapaMundoRouteImport } from './routes/mapa-mundo'
 import { Route as H2hRouteImport } from './routes/h2h'
 import { Route as DominioRouteImport } from './routes/dominio'
+import { Route as DebugRouteImport } from './routes/debug'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TabelaKeyRouteImport } from './routes/tabela.$key'
 import { Route as DashboardKeyRouteImport } from './routes/dashboard.$key'
@@ -40,6 +41,11 @@ const H2hRoute = H2hRouteImport.update({
 const DominioRoute = DominioRouteImport.update({
   id: '/dominio',
   path: '/dominio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DebugRoute = DebugRouteImport.update({
+  id: '/debug',
+  path: '/debug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -85,6 +91,7 @@ const PerfilClubeNomeRoute = PerfilClubeNomeRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/debug': typeof DebugRoute
   '/dominio': typeof DominioRoute
   '/h2h': typeof H2hRoute
   '/mapa-mundo': typeof MapaMundoRoute
@@ -99,6 +106,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/debug': typeof DebugRoute
   '/dominio': typeof DominioRoute
   '/h2h': typeof H2hRoute
   '/mapa-mundo': typeof MapaMundoRoute
@@ -114,6 +122,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/debug': typeof DebugRoute
   '/dominio': typeof DominioRoute
   '/h2h': typeof H2hRoute
   '/mapa-mundo': typeof MapaMundoRoute
@@ -130,6 +139,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/debug'
     | '/dominio'
     | '/h2h'
     | '/mapa-mundo'
@@ -144,6 +154,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/debug'
     | '/dominio'
     | '/h2h'
     | '/mapa-mundo'
@@ -158,6 +169,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/debug'
     | '/dominio'
     | '/h2h'
     | '/mapa-mundo'
@@ -173,6 +185,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DebugRoute: typeof DebugRoute
   DominioRoute: typeof DominioRoute
   H2hRoute: typeof H2hRoute
   MapaMundoRoute: typeof MapaMundoRoute
@@ -214,6 +227,13 @@ declare module '@tanstack/react-router' {
       path: '/dominio'
       fullPath: '/dominio'
       preLoaderRoute: typeof DominioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/debug': {
+      id: '/debug'
+      path: '/debug'
+      fullPath: '/debug'
+      preLoaderRoute: typeof DebugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -277,6 +297,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DebugRoute: DebugRoute,
   DominioRoute: DominioRoute,
   H2hRoute: H2hRoute,
   MapaMundoRoute: MapaMundoRoute,
@@ -292,13 +313,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
