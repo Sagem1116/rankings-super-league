@@ -359,6 +359,60 @@ function DebugPage() {
           />
         </section>
       )}
+
+      {tab === "treinadores" && (
+        <section className="space-y-3">
+          <div className="rounded-[1.5rem] glow-panel p-4 text-sm text-slate-300">
+            <p>
+              Cada linha mostra, para uma <strong>(época, treinador, clube)</strong>, exactamente
+              quanto essa linha contribui para cada ranking de treinadores:
+            </p>
+            <ul className="mt-2 list-disc pl-5 text-xs text-slate-400 space-y-1">
+              <li><span className="text-violet-200">R. Treinador</span> = Pts (somados ao Total do <em>Ranking Treinador</em>).</li>
+              <li><span className="text-violet-200">R. Treinador (Fixos)</span> = Pts × Peso Fixo.</li>
+              <li><span className="text-violet-200">Base Coef</span> = Pts + Bónus &nbsp;·&nbsp; <span className="text-violet-200">Contrib. Coef</span> = Base × Peso Temporal (apenas últimas 5 épocas; 0 fora).</li>
+              <li><span className="text-violet-200">Base Coef Fixo</span> = Pts × Peso Fixo + Bónus &nbsp;·&nbsp; <span className="text-violet-200">Contrib. Coef Fixos</span> = Base × Peso Temporal.</li>
+              <li><span className="text-violet-200">R. Treinador País</span> / <span className="text-violet-200">(Fixos)</span> — mesmos valores atribuídos à <em>Nacionalidade</em> do treinador.</li>
+              <li>Bónus: Campeão +10, Promovido +4, 2º–5º +3.</li>
+            </ul>
+            <div className="mt-3 grid grid-cols-2 gap-3 text-xs sm:grid-cols-3 lg:grid-cols-6">
+              <Stat label="Linhas" value={treinadoresRows.length} />
+              <Stat label="Treinadores únicos" value={treinadoresStats.treinadoresUnicos} />
+              <Stat label="Nacionalidades" value={treinadoresStats.nacionalidades} />
+              <Stat label="Σ R. Treinador" value={Math.round(treinadoresStats.totalRT)} />
+              <Stat label="Σ Coef (janela 5a)" value={Math.round(treinadoresStats.totalCoef)} />
+              <Stat label="Σ Coef Fixos (janela 5a)" value={Math.round(treinadoresStats.totalCoefFixo)} />
+            </div>
+          </div>
+          <DebugTable
+            columns={[
+              { key: "Epoca", label: "Época" },
+              { key: "Treinador", label: "Treinador" },
+              { key: "Nac", label: "Nac" },
+              { key: "Equipa", label: "Clube" },
+              { key: "Div", label: "Div", align: "right" },
+              { key: "Pos", label: "Pos", align: "right" },
+              { key: "Inf", label: "Inf" },
+              { key: "Pts", label: "Pts", align: "right" },
+              { key: "PesoFixo", label: "Peso Fixo", align: "right" },
+              { key: "Bonus", label: "Bónus", align: "right" },
+              { key: "R_Treinador", label: "→ R. Treinador", align: "right" },
+              { key: "R_Treinador_Fixos", label: "→ R. Treinador (Fixos)", align: "right" },
+              { key: "BaseCoef", label: "Base Coef", align: "right" },
+              { key: "PesoTemporal", label: "Peso Temp.", align: "right" },
+              { key: "ContribCoef", label: "→ Contrib. Coef", align: "right" },
+              { key: "BaseCoefFixo", label: "Base Coef Fixo", align: "right" },
+              { key: "ContribCoefFixo", label: "→ Contrib. Coef Fixos", align: "right" },
+              { key: "R_TreinadorPais", label: "→ R. Tr. País", align: "right" },
+              { key: "R_TreinadorPaisFixos", label: "→ R. Tr. País (Fixos)", align: "right" },
+              { key: "Campeao", label: "Campeão", align: "center" },
+              { key: "Promovido", label: "Promovido", align: "center" },
+            ]}
+            rows={treinadoresRows}
+            emptyMessage="Sem linhas com treinador associado."
+          />
+        </section>
+      )}
     </div>
   );
 }
