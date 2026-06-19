@@ -29,7 +29,7 @@ function bonusFor(inf: string, pos: number): number {
   return b;
 }
 
-type Tab = "pontos" | "clubes";
+type Tab = "pontos" | "clubes" | "treinadores";
 
 function DebugPage() {
   const { seasons } = useFMStore();
@@ -148,6 +148,77 @@ function DebugPage() {
     return { totalRanking, campeoes, promovidos, epocasComProblemas };
   }, [clubesRows]);
 
+  /* ---------------- DEBUG TREINADORES ---------------- */
+  const treinadoresRows = useMemo(() => {
+    const out: any[] = [];
+    const filteredSeasons = epocaSel === "__all"
+      ? sortedSeasons
+      : sortedSeasons.filter((s) => s.epoca === epocaSel);
+    for (const s of filteredSeasons) {
+      const last5Idx = last5.indexOf(s.epoca);
+      const coefWeight = last5Idx >= 0 ? COEF_WEIGHTS[last5Idx] : 0;
+      const trainerMap = trainersByEp.get(s.epoca) ?? new Map();
+      for (const r of s.rankings) {
+        const tr = trainerMap.get(r.Equipa);
+        if (!tr) continue; // só linhas que contribuem para rankings de treinadores
+        const wFixo = pesosFixos.get(r.Divisao) ?? 1;
+        const bonus = bonusFor(r.Inf, r.Pos);
+        const ptsFixos = +(r.Pts * wFixo).toFixed(2);
+        const baseCoef = r.Pts + bonus;
+        const baseCoefFixo = r.Pts * wFixo + bonus;
+        const contribCoef = +(baseCoef * coefWeight).toFixed(2);
+        const contribCoefFixo = +(baseCoefFixo * coefWeight).toFixed(2);
+        out.push({
+          Epoca: s.epoca,
+          Treinador: tr.nome,
+          Nac: tr.nac || "—",
+          Equipa: r.Equipa,
+          Div: r.Divisao,
+          Pos: r.Pos,
+          Inf: r.Inf || "",
+          Pts: r.Pts,
+          PesoFixo: wFixo,
+          Bonus: bonus,
+          // → Ranking_Treinador (Pts crus, somados ao Total)
+          R_Treinador: r.Pts,
+          // → Ranking_Treinador_Fixos (Pts × pesoFixo)
+          R_Treinador_Fixos: ptsFixos,
+          // → Treinador_Coef base (Pts + bónus) e contribuição (× peso temporal)
+          BaseCoef: +baseCoef.toFixed(2),
+          ContribCoef: contribCoef,
+          // → Treinador_Coef_Fixos base (Pts × peso + bónus) e contribuição
+          BaseCoefFixo: +baseCoefFixo.toFixed(2),
+          ContribCoefFixo: contribCoefFixo,
+          // → Ranking_Treinador_Pais / _Fixo (atribuído à nacionalidade)
+          R_TreinadorPais: r.Pts,
+          R_TreinadorPaisFixos: ptsFixos,
+          // títulos para Treinador_Campeoes / Play-Off
+          Campeao: isC(r.Inf) ? "✅" : "—",
+          Promovido: isP(r.Inf) ? "✅" : "—",
+          PesoTemporal: coefWeight,
+        });
+      }
+    }
+    const f = filtro.trim().toLowerCase();
+    if (!f) return out;
+    return out.filter((r) =>
+      String(r.Treinador).toLowerCase().includes(f) ||
+      String(r.Equipa).toLowerCase().includes(f) ||
+      String(r.Nac).toLowerCase().includes(f) ||
+      String(r.Epoca).toLowerCase().includes(f),
+    );
+  }, [sortedSeasons, epocaSel, last5, pesosFixos, trainersByEp, filtro]);
+
+  const treinadoresStats = useMemo(() => {
+    const treinadoresUnicos = new Set(treinadoresRows.map((r) => r.Treinador)).size;
+    const nacionalidades = new Set(treinadoresRows.map((r) => r.Nac).filter((n) => n && n !== "—")).size;
+    const totalRT = treinadoresRows.reduce((a, r) => a + (Number(r.R_Treinador) || 0), 0);
+    const totalRTF = treinadoresRows.reduce((a, r) => a + (Number(r.R_Treinador_Fixos) || 0), 0);
+    const totalCoef = treinadoresRows.reduce((a, r) => a + (Number(r.ContribCoef) || 0), 0);
+    const totalCoefFixo = treinadoresRows.reduce((a, r) => a + (Number(r.ContribCoefFixo) || 0), 0);
+    return { treinadoresUnicos, nacionalidades, totalRT, totalRTF, totalCoef, totalCoefFixo };
+  }, [treinadoresRows]);
+
   if (!seasons.length) {
     return (
       <div className="rounded-[2rem] glow-panel p-10 text-center">
@@ -179,6 +250,12 @@ function DebugPage() {
               className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${tab === "clubes" ? "bg-violet-500/30 text-white" : "text-slate-300 hover:text-white"}`}
             >
               Debug Clubes
+            </button>
+            <button
+              onClick={() => setTab("treinadores")}
+              className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${tab === "treinadores" ? "bg-violet-500/30 text-white" : "text-slate-300 hover:text-white"}`}
+            >
+              Debug Treinadores
             </button>
           </div>
 
