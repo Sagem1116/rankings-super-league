@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { ChevronDown, Home, Search, Trophy, Globe, UserSquare2, User2, Goal, Sparkles, BarChart3, Layers, Hash } from "lucide-react";
+import { ChevronDown, Home, Search, Trophy, Globe, UserSquare2, User2, Goal, Sparkles, BarChart3, Layers, Hash, Bug } from "lucide-react";
 import { CATEGORIES_ORDER, PAGES } from "@/lib/page-registry";
 import type { PageCategory } from "@/lib/types";
 import { useFMStore } from "@/lib/store";
@@ -29,6 +29,7 @@ const QUICK_LINKS = [
   { label: "Dashboard Jogadores", icon: User2, to: "/dashboard/Dashboard_Jogadores" },
   { label: "Scouting", icon: Search, to: "/scouting" },
   { label: "Mapa Mundo", icon: Globe, to: "/dashboard/Mapa_Mundo" },
+  { label: "Debug", icon: Bug, to: "/debug" },
 ];
 
 export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
